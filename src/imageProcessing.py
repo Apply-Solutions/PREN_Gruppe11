@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 
-'''
-Simple "Square Detector" program.
-
-Loads several images sequentially and tries to find squares in each image.
-'''
-
 # Python 2/3 compatibility
 import sys
 PY3 = sys.version_info[0] == 3
