@@ -21,10 +21,10 @@ def magnet():
     GPIO.output(GPIO_TRIGGER, GPIO.LOW)
 
     print("Off")
-  
+
 if __name__ == '__main__':
   try:
       while True:
-          print("Hallo")
+          print("sucking...")
   except KeyboardInterrupt:
       GPIO.cleanup()
