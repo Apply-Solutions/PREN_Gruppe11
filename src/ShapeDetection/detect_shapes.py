@@ -37,25 +37,29 @@ if __name__ == '__main__':
             # compute the center of the contour, then detect the name of the
             # shape using only the contour
             M = cv2.moments(c)
-            cX = int((M["m10"] / M["m00"]) * ratio)
-            cY = int((M["m01"] / M["m00"]) * ratio)
             shape = sd.detect(c)
-
-            if shape == "square" or shape == "rectangle":
-                print("No square found")
-            else:
-                print(str(len(cnts)) + " Squares found!!")
-
+            
             # multiply the contour (x, y)-coordinates by the resize ratio,
             # then draw the contours and the name of the shape on the image
             c = c.astype("float")
             c = c.astype("int")
             cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
-            cv2.imwrite("edited_" + imageName, img)
 
-            # show the output image
-            cv2.imshow("Image", img)
-            cv2.waitKey(0)
+            if shape == "square":
+                print("Square found.")
+                
+                # show the output image
+                cv2.imshow("Image", img)
+                cv2.waitKey(0)
+            elif shape == "rectangle":
+                print("Rectangle found.")
+                
+                # show the output image
+                cv2.imshow("Image", img)
+                cv2.waitKey(0)
+            else:
+                print("No Squares found.")            
+            
 
         counter = counter + 1
-        sleep(5)
+        sleep(1)
