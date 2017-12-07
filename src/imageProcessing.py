@@ -55,20 +55,21 @@ def analyze_image():
 
 if __name__ == '__main__':
     camera = picamera.PiCamera()
+    camera.resolution = (1024,768)
     counter = 0
     while True:
-        imageName = str(counter) + "image.jpg"
+        imageName = "pic_imageTest_" + str(counter) + ".jpg"
 
-        camera.capture(imageName)
+        camera.capture(imageName, resize=(320, 240))
         img = cv2.imread(imageName)
         
         listOfSquares = find_squares(img);
         if len(listOfSquares) == 0:
-            sys.stdout.write("No square found")
-            sys.stdout.flush()
+            print("No square found")
         else:
-            sys.stdout.write(str(len(listOfSquares)) + " Squares found!!")
-            sys.stdout.flush()
+            print(str(len(listOfSquares)) + " Squares found!!")
+            cv2.drawContours(img, listOfSquares, -1, (0, 255, 0), 3)
+            cv2.imwrite("edited_" + imageName, img)
         
         counter = counter +1
         sleep(1)
