@@ -24,7 +24,7 @@ def magnet():
 
 if __name__ == '__main__':
   try:
-      while True:
-          print("sucking...")
+    while True:
+        print("sucking...")
   except KeyboardInterrupt:
       GPIO.cleanup()
