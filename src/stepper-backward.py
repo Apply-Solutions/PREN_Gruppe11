@@ -17,22 +17,13 @@ GPIO.output(DIR, CW)
 step_count = SPR
 delay = .002
 
-# do steps forward
-for x in range(step_count):
-    GPIO.output(STEP, GPIO.HIGH)
-    sleep(delay)
-    GPIO.output(STEP, GPIO.LOW)
-    sleep(delay)
-
-sleep(.5)
-# set direction backwards (counterclockwise)
-GPIO.output(DIR, CCW)
-
-# do steps backwards
-for x in range(step_count):
-    GPIO.output(STEP, GPIO.HIGH)
-    sleep(delay)
-    GPIO.output(STEP, GPIO.LOW)
-    sleep(delay)
-
-GPIO.cleanup()
+if __name__ == '__main__':
+    try:
+	while True:
+	    GPIO.output(STEP, GPIO.HIGH)
+	    sleep(delay)
+	    GPIO.output(STEP, GPIO.LOW)
+	    sleep(delay)
+    except KeyboardInterrupt:
+	GPIO.output(STEP, GPIO.LOW)
+	GPIO.cleanup()

@@ -10,6 +10,8 @@ if PY3:
 
 import numpy as np
 import cv2
+import picamera
+from time import sleep
 
 
 def angle_cos(p0, p1, p2):
@@ -54,5 +56,24 @@ def analyze_image():
 
 
 if __name__ == '__main__':
-    analyze_image()
-    cv2.destroyAllWindows()
+    camera = picamera.PiCamera()
+    camera.resolution = (1024,768)
+    counter = 0
+    while True:
+        imageName = "pic_imageTest_" + str(counter) + ".jpg"
+
+        camera.capture(imageName, resize=(320, 240))
+        img = cv2.imread(imageName)
+        
+        listOfSquares = find_squares(img);
+        if len(listOfSquares) == 0:
+            print("No square found")
+        else:
+            print(str(len(listOfSquares)) + " Squares found!!")
+            cv2.drawContours(img, listOfSquares, -1, (0, 255, 0), 3)
+            cv2.imwrite("edited_" + imageName, img)
+        
+        counter = counter +1
+        sleep(1)
+        
+#cv2.destroyAllWindows()
