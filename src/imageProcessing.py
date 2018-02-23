@@ -41,7 +41,9 @@ def find_squares(img):
 
 def analyze_image():
     from glob import glob
-    for fn in glob('/data/pic*.png'):
+
+    foo = glob('../data/pic*.png')
+    for fn in glob('../data/pic*.png'):
         img = cv2.imread(fn)
         squares = find_squares(img)
         cv2.drawContours(img, squares, -1, (0, 255, 0), 3)
