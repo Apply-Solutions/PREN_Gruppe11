@@ -32,10 +32,11 @@ while True:
     elif received_data.strip() == "start-process":
         print ("Received message from client: " + received_data)
         received_data = ""
-        # function call here
-        start_cat()
         status = "started"
         client_sock.send("status@" + status + "#")
+        # function call here
+        start_cat()
+
 
 def sendMessage():
 
