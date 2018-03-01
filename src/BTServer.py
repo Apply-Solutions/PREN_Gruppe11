@@ -1,5 +1,8 @@
 import bluetooth
 import sys
+import start_cat
+
+# import functions from other files (send position, start function)
 
 server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 port = 8700
@@ -18,9 +21,10 @@ client_sock, address = server_socket.accept()
 print ("Accepted connection from ", address)
 client_sock.send("status@" + status + "#")
 while True:
-    received_data = client_sock.recv(1024)
+    received_data = client_sock.recv(1024) #receiveData here
+
     if received_data.strip() == "disconnect":
-        client_sock.send("dack#")
+        client_sock.send("dack#") # disconnects client
         received_data = ""
         client_sock.close()
         sys.exit("Received disconnect message. Shutting down server.")
@@ -28,5 +32,13 @@ while True:
     elif received_data.strip() == "start-process":
         print ("Received message from client: " + received_data)
         received_data = ""
+        # function call here
+        start_cat()
         status = "started"
         client_sock.send("status@" + status + "#")
+
+def sendMessage():
+
+
+
+    return "done"
