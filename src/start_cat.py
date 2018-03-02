@@ -29,11 +29,11 @@ def send_start_position():
         measurements[n] = Distance.distance()
         time.sleep(1)
 
-    x = np.mean(measurements)
-    y = math.tan(slope_radiant) * (x + mast_width)
+    x = np.mean(measurements) * 10
+    y = math.tan(slope_radiant) * (x + mast_width) * 10
 
     try:
-        print("Measured Distance From Start Mast= %.1f cm" % x)
+        print("Measured Distance From Start Mast= %.1f mm" % x)
         BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@" + x + ";" + y)
     except Exception:
         print(Exception.message)
