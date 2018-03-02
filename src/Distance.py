@@ -32,11 +32,20 @@ def distance():
         stop_time = time.time()
 
     # time difference between start and arrival
-    TimeElapsed = stop_time - start_time
+    time_elapsed = stop_time - start_time
     # multiply with the sonic speed (34300 cm/s)
     # and divide by 2, because there and back
-    dist = (TimeElapsed * 34300) / 2
+    dist = (time_elapsed * 34300) / 2
 
     GPIO.cleanup()
 
     return dist
+
+
+if __name__ == '__main__':
+    try:
+        while True:
+            dist = distance()
+            print(dist)
+    except KeyboardInterrupt:
+        print("stopped")
