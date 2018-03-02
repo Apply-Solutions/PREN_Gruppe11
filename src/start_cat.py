@@ -1,23 +1,13 @@
-import distance
-import RPi.GPIO as GPIO
+import Distance
 import time
 import BTServer
 import math
+import numpy as np
 import StepperHorizontal
 
 
-def main():
-    try:
-        while True:
-            dist = distance.distance()
-            print("Measured Distance = %.1f cm" % dist)
-
-            BTServer.send_message(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@" + dist)
-            time.sleep(1)
-    except err:
-        print(err)
-
-
+# if measured distance on first measurements are
+# out of start_range start measurements again
 def start_cat(start_range):
 
     # set x to null and detect starting position
@@ -30,16 +20,24 @@ def start_cat(start_range):
 
 
 def send_start_position():
-    for x in range(0, 5):
-        mast_width = 10*10  # (10cm thickness of first mast)
-        slope_radiant = math.radiant(8.13)  # 8.13 degrees
-        x = distance.distance()
-        y = math.tan(slope_radiant) * (distance + mast_width)
-        coordinates = [x, y]
-        BTServer.sendMessage(coordinates)  # send coordinates to client through server
+
+    measurements = []
+    mast_width = 10 * 10  # (10cm thickness of first mast)
+    slope_radiant = math.radiant(8.13)  # 8.13 degrees
+
+    for n in range(0, 5):
+        measurements[n] = Distance.distance()
         time.sleep(1)
 
-    GPIO.cleanup()
+    x = np.mean(measurements) * 10
+    y = math.tan(slope_radiant) * (x + mast_width) * 10
+
+    try:
+        print("Measured Distance From Start Mast= %.1f mm" % x)
+        BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@" + x + ";" + y)
+    except Exception:
+        print(Exception.message)
+        # maybe implement fallback in case sending fails
 
 
 def start_horizontal():
@@ -48,7 +46,3 @@ def start_horizontal():
 
 def stop_horizontal():
     StepperHorizontal.stop_motor()
-
-
-if __name__ == '__main__':
-    main()
