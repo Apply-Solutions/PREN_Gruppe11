@@ -35,21 +35,27 @@ def find_squares(img):
                     squares.append(cnt)
     return squares
 
+def check_if_square():
+    camera = picamera.PiCamera()
+    camera.resolution = (1024, 768)
+    camera.capture(imageName, resize=(320, 240))
+    img = cv2.imread(imageName)
 
-def analyze_image():
-    from glob import glob
+    listOfSquares = find_squares(img);
 
-    foo = glob('../data/pic*.png')
-    for fn in glob('../data/pic*.png'):
-        img = cv2.imread(fn)
-        squares = find_squares(img)
-        cv2.drawContours(img, squares, -1, (0, 255, 0), 3)
-        cv2.imshow('squares', img)
-        ch = cv2.waitKey()
-        if ch == 27:
-            break
+    os.remove(img)
+
+    if len(listOfSquares) == 0:
+        print("No Square found.")
+        return false
+    else:
+        print(str(len(listOfSquares)) + " Squares found!!")
+        #cv2.drawContours(img, listOfSquares, -1, (0, 255, 0), 3)
+        #cv2.imwrite("edited_" + imageName, img)
+        return true;
 
 
+# this method is just for test purposes.
 if __name__ == '__main__':
     camera = picamera.PiCamera()
     camera.resolution = (1024,768)
