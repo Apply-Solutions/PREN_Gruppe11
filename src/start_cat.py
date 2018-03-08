@@ -4,6 +4,13 @@ import BTServer
 import math
 import numpy as np
 import StepperHorizontal
+import StepperVertical
+import ImageProcessor
+import cv2
+import picamera
+from time import sleep
+
+steps = 0
 
 
 # if measured distance on first measurements are
@@ -11,10 +18,22 @@ import StepperHorizontal
 def start_cat(start_range):
 
     # set x to null and detect starting position
-    send_start_position()
+    while not send_start_position():
+        print("searching distance")
+        time.sleep(.5)
+
     start_horizontal()
-    time.sleep(20)  # maybe with steps instead of just starting motor
-    stop_horizontal()
+    ImageProcessor.status = "ON"
+
+    while not ImageProcessor.status == "ON":
+        print("Checking for squares")
+
+        time.sleep(.5)
+
+    # IDEA: If stop, then take so many steps, then stop
+    StepperHorizontal.stop_motor(steps)
+    stop_image_processing()
+    start_vertical()
 
     return "done! YEAH!"
 
@@ -34,15 +53,46 @@ def send_start_position():
 
     try:
         print("Measured Distance From Start Mast= %.1f mm" % x)
-        BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@" + x + ";" + y)
+        BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@Position;" + x + ";" + y)
+        return True
     except Exception:
         print(Exception.message)
-        # maybe implement fallback in case sending fails
+        return False
 
 
+def check_for_squares():
+    # This method is just for test purposes
+    ImageProcessor.status == "ON"
+    image_name = "image_from_processor.jpg"
+    camera = picamera.PiCamera()
+    camera.resolution = (1024, 768)
+
+    camera.capture(image_name, resize=(320, 240))
+    img = cv2.imread(image_name)
+
+    list_of_squares = ImageProcessor.find_squares(img);
+
+    if len(list_of_squares) == 0:
+        print("No Square found.")
+        return False
+    else:
+        print(str(len(list_of_squares)) + " Squares found!!")
+        return True;
+
+
+def stop_image_processing():
+    ImageProcessor.status = "OFF";
+
+
+# Maybe change to one program and
+# just pass the specific motor
 def start_horizontal():
     StepperHorizontal.start_motor()
 
 
-def stop_horizontal():
-    StepperHorizontal.stop_motor()
+def start_vertical():
+    StepperVertical.start_motor()
+
+
+def stop_vertical():
+    StepperVertical.status = "OFF"
