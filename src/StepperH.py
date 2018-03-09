@@ -2,7 +2,6 @@ from time import sleep
 import RPi.GPIO as GPIO
 import threading
 
-
 DIR = 20   # Direction GPIO Pin
 STEP = 21  # Step GPIO Pin
 CW = 1     # Clockwise Rotation
@@ -22,10 +21,13 @@ delay = .002
 
 class StepperH(threading.Thread):
     def __init__(self):
+        threading.Thread.__init__(self)
         self.running = True
 
     def run(self):
+        print("hello")
         while self.running:
+            print("hello")
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
