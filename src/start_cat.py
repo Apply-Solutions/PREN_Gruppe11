@@ -3,8 +3,8 @@ import time
 import BTServer
 import math
 import numpy as np
-import StepperHorizontal
-import StepperVertical
+import StepperH
+import StepperV
 import ImageProcessor
 import cv2
 import picamera
@@ -31,7 +31,7 @@ def start_cat(start_range):
         time.sleep(.5)
 
     # IDEA: If stop, then take so many steps, then stop
-    StepperHorizontal.stop_motor(steps)
+    StepperH.stop_motor(steps)
     stop_image_processing()
     start_vertical()
 
@@ -87,12 +87,12 @@ def stop_image_processing():
 # Maybe change to one program and
 # just pass the specific motor
 def start_horizontal():
-    StepperHorizontal.start_motor()
+    StepperH.start_motor()
 
 
 def start_vertical():
-    StepperVertical.start_motor()
+    StepperV.start_motor()
 
 
 def stop_vertical():
-    StepperVertical.status = "OFF"
+    StepperV.status = "OFF"

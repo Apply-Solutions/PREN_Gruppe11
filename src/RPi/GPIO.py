@@ -1,16 +1,28 @@
 BOARD = 1
 OUT = 1
 IN = 1
+BCM = 1
+
 
 def setmode(a):
-   print a
+    print a
+
+
 def setup(a, b):
-   print a
+    print a
+
+
 def output(a, b):
-   print a
+    print a
+
+
 def cleanup():
-   print 'a'
+    print 'a'
+
+
 def setmode(a):
-   print a
+    print a
+
+
 def setwarnings(flag):
-   print 'False'
+    print 'False'

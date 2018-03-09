@@ -20,7 +20,7 @@ step_count = SPR
 delay = .002
 
 
-class StepperHorizontal(threading.Thread):
+class StepperH(threading.Thread):
     def __init__(self):
         self.running = True
 
