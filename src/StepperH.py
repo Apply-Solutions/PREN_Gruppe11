@@ -1,5 +1,5 @@
 from time import sleep
-import RPi.GPIO as GPIO
+import RPi as GPIO
 import threading
 
 DIR = 20   # Direction GPIO Pin
@@ -25,9 +25,7 @@ class StepperH(threading.Thread):
         self.running = True
 
     def run(self):
-        print("hello")
         while self.running:
-            print("hello")
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
