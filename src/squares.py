@@ -31,7 +31,7 @@ def find_squares(img):
     #img = cv.GaussianBlur(img, (5, 5), 0)
     squares = []
     for gray in cv.split(img):
-        _retval, bin = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
+        _retval, bin = cv.threshold(gray, 60, 255, cv.THRESH_BINARY)
         bin, contours, _hierarchy = cv.findContours(bin, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             cnt_len = cv.arcLength(cnt, True)
@@ -39,14 +39,21 @@ def find_squares(img):
             if len(cnt) == 4 and cv.contourArea(cnt) > 1000 and cv.isContourConvex(cnt):
                 cnt = cnt.reshape(-1, 2)
                 max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
-                if max_cos < 0.1:
+                if max_cos < 0.05:
                     squares.append(cnt)
+
+    for cont in squares:
+        M = cv.moments(cont)
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+        print("x: " + str(cX) + " y: " + str(cY))
+
     return squares
 
 
 if __name__ == '__main__':
     from glob import glob
-    for fn in glob('../data/pic*.png'):
+    for fn in glob('../data/pic*.jpg'):
         img = cv.imread(fn)
         #find_squares2(img)
         squares = find_squares(img)
