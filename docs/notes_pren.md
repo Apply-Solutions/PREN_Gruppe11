@@ -1,5 +1,7 @@
 # Notes PREN
 
+15.03.18
+
 ## Pi-Features
 
 * Time-To-Boot mit [Service] TimoutStartSec=5: ca. 20s
@@ -25,7 +27,9 @@ network={
 ## Python Threads
 
 ### Theory
-Da wir Tasks gleichzeitig auf der Raspberry Pi laufen lassen müssen, verwenden wir Threads, um dies sinnvoll umzusetzen.
+Da wir Tasks simultan auf der Raspberry Pi laufen lassen müssen, verwenden wir Threads, um dies sinnvoll umzusetzen.
+
+Weiter unten ist ein konkretes Beispiel und als weitere Lektüre verwenden wir: O'reilly - Programmin Python - Mark Lutz
 
 *Source: Learn Raspberry Pi Programming With Python*
 
@@ -161,3 +165,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpMaWHXo+GGccUM8PiDJVWFdwPJGvkX/wxnMP7hwWA
 * https://www.raspberrypi.org/forums/viewtopic.php?t=135369
 * Solution: https://unix.stackexchange.com/questions/186162/how-to-change-timeout-in-systemctl
 
+Run bash script **after login**:
+
+* https://stackoverflow.com/questions/39024657/run-bash-script-after-login
