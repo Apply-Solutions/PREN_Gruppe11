@@ -3,13 +3,13 @@ import RPi.GPIO as GPIO
 import time
 
 # GPIO Mode (BOARD / BCM)
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 # set GPIO Pins
 GPIO_TRIGGER = 12
 
 # set GPIO direction (IN / OUT)
-PGIO.setup(GPIO_TRIGGER, PGIO.OUT)
+GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 
 def magnet():
     # set Trigger to HIGH
@@ -26,5 +26,6 @@ if __name__ == '__main__':
   try:
     while True:
         print("sucking...")
+	magnet()
   except KeyboardInterrupt:
       GPIO.cleanup()
