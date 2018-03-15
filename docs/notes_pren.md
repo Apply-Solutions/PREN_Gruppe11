@@ -29,7 +29,10 @@ network={
 ### Theory
 Da wir Tasks simultan auf der Raspberry Pi laufen lassen müssen, verwenden wir Threads, um dies sinnvoll umzusetzen.
 
-Weiter unten ist ein konkretes Beispiel und als weitere Lektüre verwenden wir: O'reilly - Programmin Python - Mark Lutz
+Weiter unten ist ein konkretes Beispiel und als weitere Lektüre verwenden wir: 
+
+* O'reilly - Programmin Python - Mark Lutz
+* https://www.tutorialspoint.com/python/python_multithreading.htm
 
 *Source: Learn Raspberry Pi Programming With Python*
 
