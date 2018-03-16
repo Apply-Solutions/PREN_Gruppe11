@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import spidev
+import time
 
 spi = spidev.SpiDev()
 spi.open(0, 0)
@@ -12,7 +13,17 @@ def readChannel(channel):
     return data
 
 
-if __name__ == "__main__":
+def distance():
     v = (readChannel(0) / 1023.0) * 3.3
     dist = 16.2537 * v ** 4 - 129.893 * v ** 3 + 382.268 * v ** 2 - 512.611 * v + 301.439
-    print "Distanz: %.2f cm" % dist
+    return dist
+
+
+if __name__ == "__main__":
+    try:
+        while True:
+            dist = distance()
+	    print "Distanz: %.2f cm" % dist
+            time.sleep(.05)
+    except KeyboardInterrupt:
+        print("\n\nSensor stopped")

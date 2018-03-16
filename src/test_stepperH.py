@@ -1,6 +1,7 @@
 from StepperH import StepperH
 import time
 
+
 # starts horizontal stepper as thread
 if __name__ == '__main__':
 	stepper = StepperH()
