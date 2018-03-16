@@ -158,6 +158,49 @@ ifconfig eth0 192.168.0.1 netmask 255.255.255.0
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpMaWHXo+GGccUM8PiDJVWFdwPJGvkX/wxnMP7hwWAyq0bqnry8GFJj6ZMzRcY4BsLjEroiqXZZ8ZQOw86ph59XIsIzAOb+ExRggWiQ7goPVpq/g7PQcO0AgUUBcAHNlwvGEyH1VDRxJsNy4e55nedR4wYqQ5vL198BJB2wTBfqGI+K3Rrlvyy2VeZhGmoSBYI542MT2JcgWrRNVdAkElq8urrcXoyoqkYxekhXpb4RflQgwjPKxdX+PdVokj3bRKCxBIxFlD4gAoGV44gyV0/eM+vuXqAvoHTVBrtC0HreTQ5x+mnwnW+2XHSjdXVEYklj18ZWX6z+DGtt/Zw3agL root@minibian
 ```
 
+## GPIO Pins
+Um die verschiedenen Komponenten, welche am Raspberry Pi angeschlossen sind, ansteuern zu können, verwenden wir die GPIO Pins des Raspberry Pis. Folgende Pins sind besetzt:
+
+* 16: SharpSensor, Inputsignal
+* 18: Ultraschall, Outputsignal
+* 24: Ultraschall, Inputsignal
+
+## Distance Sensor
+
+### Analog
+https://www.dfrobot.com/wiki/index.php/Sharp_GP2Y0A02YK_IR_ranger_sensor_(150cm)_(SKU:SEN0013)
+
+Der "SHARP GP2Y0A02YK IR ranger sensor" misst mit Infrarot continuierlich die Distanz und gibt eine analoge Spannung zurück. 
+
+Code in C++:
+```c++
+/*
+  description:
+  The sample code is used to measure distance by GP2Y0A02YK IR ranger sensor.
+  VCC -- VCC
+  GND -- GND
+  Signal -- Analog 1    
+*/
+
+int IRpin = 1;                                    // analog pin for reading the IR sensor
+
+void setup() {
+  Serial.begin(9600);                             // start the serial port
+}
+
+void loop() {
+  float volts = analogRead(IRpin)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
+  float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)
+  Serial.println(distance);                       // print the distance
+  delay(100);                                     // arbitary wait time.
+}
+```
+
+Code in Python:
+
+```python
+
+```
 
 ## Important Links
 
