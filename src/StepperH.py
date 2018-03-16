@@ -1,5 +1,5 @@
 from time import sleep
-import RPi as GPIO
+import RPi.GPIO as GPIO
 import threading
 
 DIR = 20   # Direction GPIO Pin
@@ -16,7 +16,7 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.output(DIR, CW)
 
 step_count = SPR
-delay = .002
+delay = .0005
 
 
 class StepperH(threading.Thread):
@@ -30,3 +30,4 @@ class StepperH(threading.Thread):
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
+	GPIO.cleanup()
