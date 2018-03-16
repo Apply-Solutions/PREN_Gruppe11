@@ -29,7 +29,10 @@ def find_squares2(img):
 
 def find_squares(img):
     #img = cv.GaussianBlur(img, (5, 5), 0)
-    squares = []
+    squaresWithMiddlepoint = []
+
+    middlePoints = []
+
     for gray in cv.split(img):
         _retval, bin = cv.threshold(gray, 60, 255, cv.THRESH_BINARY)
         bin, contours, _hierarchy = cv.findContours(bin, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -40,13 +43,35 @@ def find_squares(img):
                 cnt = cnt.reshape(-1, 2)
                 max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
                 if max_cos < 0.05:
-                    squares.append(cnt)
+                    M = cv.moments(cnt)
+                    cX = int(M["m10"] / M["m00"])
+                    cY = int(M["m01"] / M["m00"])
+                    squaresWithMiddlepoint.append((cX, cY, cnt))
+                    middlePoints.append((cX, cY))
+                    print("x: " + str(cX) + " y: " + str(cY))
 
-    for cont in squares:
-        M = cv.moments(cont)
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-        print("x: " + str(cX) + " y: " + str(cY))
+    squares = []
+
+    selectedPoint = ()
+
+    for point in middlePoints:
+        if middlePoints.count(point) > (len(middlePoints) / 2) + 1:
+            selectedPoint = point
+
+    countedPoints = []
+
+    for point in middlePoints:
+        if len(countedPoints) == 0:
+            countedPoints.append((1, point))
+
+        for countedPoint in countedPoints:
+            if point[0] - countedPoints[0] > 4 & point[1] - countedPoints[1]:
+                countedPoints.append(point)
+
+    for cnt in squaresWithMiddlepoint:
+
+        print("x: " + str(cnt[0]) + " y: " + str(cnt[1]))
+        squares.append(cnt[2])
 
     return squares
 
