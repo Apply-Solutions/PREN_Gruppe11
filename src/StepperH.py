@@ -30,4 +30,4 @@ class StepperH(threading.Thread):
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
-	GPIO.cleanup()
+        GPIO.cleanup()

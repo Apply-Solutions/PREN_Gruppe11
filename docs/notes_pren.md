@@ -161,6 +161,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpMaWHXo+GGccUM8PiDJVWFdwPJGvkX/wxnMP7hwWA
 ## GPIO Pins
 Um die verschiedenen Komponenten, welche am Raspberry Pi angeschlossen sind, ansteuern zu können, verwenden wir die GPIO Pins des Raspberry Pis. Folgende Pins sind besetzt:
 
+* 12: ElectroMagnet, Outputsignal
 * 16: SharpSensor, Inputsignal
 * 18: Ultraschall, Outputsignal
 * 24: Ultraschall, Inputsignal
