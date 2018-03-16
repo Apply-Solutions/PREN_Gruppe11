@@ -1,5 +1,5 @@
 from time import sleep
-import RPi.GPIO as GPIO
+import RPi as GPIO
 
 DIR = 20   # Direction GPIO Pin
 STEP = 21  # Step GPIO Pin

@@ -16,7 +16,7 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.output(DIR, CW)
 
 step_count = SPR
-delay = .002
+delay = .0005
 
 
 class StepperH(threading.Thread):
@@ -25,10 +25,9 @@ class StepperH(threading.Thread):
         self.running = True
 
     def run(self):
-        print("hello")
         while self.running:
-            print("hello")
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
+	GPIO.cleanup()
