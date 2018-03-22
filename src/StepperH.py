@@ -31,5 +31,8 @@ class StepperH(threading.Thread):
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
+        # GPIO.cleanup()
+
+    def clean_up(self):
         print("\nStepperH OFF")
-        GPIO.cleanup()
+	self.running = False	
