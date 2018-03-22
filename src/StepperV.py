@@ -2,8 +2,8 @@ from time import sleep
 import RPi.GPIO as GPIO
 import threading
 
-DIR = 20   # Direction GPIO Pin
-STEP = 21  # Step GPIO Pin
+DIR = 21   # Direction GPIO Pin
+STEP = 20  # Step GPIO Pin
 CW = 1     # Clockwise Rotation
 CCW = 0    # Counterclockwise Rotation
 SPR = 1000   # Steps per Revolution (360 / 7.5)
@@ -19,7 +19,7 @@ step_count = SPR
 delay = .0005
 
 
-class StepperH(threading.Thread):
+class StepperV(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.running = True
