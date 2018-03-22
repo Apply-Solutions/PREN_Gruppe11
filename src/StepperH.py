@@ -25,11 +25,11 @@ class StepperH(threading.Thread):
         self.running = True
 
     def run(self):
-	print("\nStepperH ON")
+        print("\nStepperH ON")
         while self.running:
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
         print("\nStepperH OFF")
-	GPIO.cleanup()
+        GPIO.cleanup()

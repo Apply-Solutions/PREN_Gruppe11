@@ -13,12 +13,13 @@ GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 
 class ElectroMagnet(threading.Thread):
     def __init__(self):
+        GPIO.output(GPIO_TRIGGER, GPIO.LOW)
         threading.Thread.__init__(self)
         self.running = True
 
     def run(self):
         GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
-        print("\nElectromagnet ON")
+        print("Electromagnet ON")
         while self.running:
             print("Electromagnet still running...")
             time.sleep(5)
