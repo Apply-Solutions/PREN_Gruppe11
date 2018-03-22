@@ -23,6 +23,11 @@ class ElectroMagnet(threading.Thread):
             print("Electromagnet still running...")
             time.sleep(5)
 
+        # GPIO.output(GPIO_TRIGGER, GPIO.LOW)
+        # print("\nElectromagnet OFF")
+        # GPIO.cleanup()
+
+    def clean_up(self):
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
         print("\nElectromagnet OFF")
         GPIO.cleanup()

@@ -16,7 +16,6 @@ if __name__ == '__main__':
         while True:
 	    print("")
     except(KeyboardInterrupt, SystemExit):
+        magnet.clean_up()
         stepper.running = False
-        stepper.join()
         magnet.running = False
-        magnet.join()
