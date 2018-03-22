@@ -242,3 +242,7 @@ if __name__ == "__main__":
 Run bash script **after login**:
 
 * https://stackoverflow.com/questions/39024657/run-bash-script-after-login
+
+**THREADPOOL**:
+
+* https://medium.com/@bfortuner/python-multithreading-vs-multiprocessing-73072ce5600b

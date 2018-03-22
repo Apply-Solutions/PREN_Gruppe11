@@ -1,5 +1,6 @@
 from time import sleep
-import RPi as GPIO
+import RPi.GPIO as GPIO
+import threading
 
 DIR = 20   # Direction GPIO Pin
 STEP = 21  # Step GPIO Pin
@@ -15,12 +16,23 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.output(DIR, CW)
 
 step_count = SPR
-delay = .002
+delay = .0005
 
 
-def start_motor():
-    while True:
-        GPIO.output(STEP, GPIO.HIGH)
-        sleep(delay)
-        GPIO.output(STEP, GPIO.LOW)
-        sleep(delay)
+class StepperH(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.running = True
+
+    def run(self):
+        print("\nStepperV ON")
+        while self.running:
+            GPIO.output(STEP, GPIO.HIGH)
+            sleep(delay)
+            GPIO.output(STEP, GPIO.LOW)
+            sleep(delay)
+        # GPIO.cleanup()
+
+    def clean_up(self):
+        print("\nStepperV OFF")
+        self.running = False

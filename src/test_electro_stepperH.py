@@ -17,6 +17,6 @@ if __name__ == '__main__':
     except(KeyboardInterrupt, SystemExit):
         magnet.clean_up()
         stepper.clean_up()
-	magnet.join()
-	stepper.join()
-	GPIO.cleanup()
+    magnet.join()
+    stepper.join()
+    GPIO.cleanup()
