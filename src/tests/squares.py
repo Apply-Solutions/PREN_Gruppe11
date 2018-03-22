@@ -6,8 +6,7 @@ import numpy as np
 import cv2
 import time
 import picamera
-import io
-from PIL import Image
+from picamera.array import PiRGBArray
 
 
 def angle_cos(p0, p1, p2):
@@ -46,26 +45,31 @@ if __name__ == '__main__':
     #        break
     #cv.destroyAllWindows()
 
-    print(time.strftime("%d.%m.%Y %H:%M:%S"))
     camera = picamera.PiCamera()
     camera.resolution = (320, 240)
-    image_stream = io.BytesIO()
+    camera.framerate = 10
+    camera.exposure_mode = 'sports'
+
+    rawCapture = PiRGBArray(camera)
+
+    # allow the camera to warmup
+    time.sleep(0.1)
+
+    print(time.strftime("%d.%m.%Y %H:%M:%S"))
     counter = 0
     while counter < 30:
-        camera.capture(image_stream, format='jpeg', resize=(320, 240))
-        data = np.fromstring(image_stream.getvalue(), dtype=np.uint8)
-        image = cv2.imdecode(data, 1)
+        camera.capture(rawCapture, format="bgr")
 
-        listOfSquares = find_squares(image);
+        listOfSquares = find_squares(rawCapture.array)
 
         if len(listOfSquares) == 0:
             print("No Square found.")
         else:
             print(str(len(listOfSquares)) + " Squares found!!")
 
-        counter = counter +1
+        rawCapture.truncate(0)
+        counter = counter + 1
 
     #cv.destroyAllWindows()
-    image_stream.close()
     print(time.strftime("%d.%m.%Y %H:%M:%S"))
 

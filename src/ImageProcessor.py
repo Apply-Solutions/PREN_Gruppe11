@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import picamera
+from picamera.array import PiRGBArray
+
 
 status = "OFF"
 
@@ -27,15 +29,19 @@ def find_squares(img):
 
 def check_if_square(imageName):
     camera = picamera.PiCamera()
-    camera.resolution = (1024, 768)
-    camera.capture(imageName, resize=(320, 240))
-    img = cv2.imread(imageName)
+    camera.resolution = (320, 240)
+    camera.framerate = 10
+    camera.exposure_mode = 'sports'
 
-    listOfSquares = find_squares(img);
+    rawCapture = PiRGBArray(camera)
+    camera.capture(rawCapture, format="bgr")
 
-    if len(listOfSquares) == 0:
+    list_of_squares = find_squares(rawCapture.array);
+    rawCapture.truncate(0)
+
+    if len(list_of_squares) == 0:
         print("No Square found.")
-        return false
+        return False
     else:
-        print(str(len(listOfSquares)) + " Squares found!!")
-        return true
+        print(str(len(list_of_squares)) + " Squares found!!")
+        return True
