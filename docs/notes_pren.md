@@ -161,10 +161,16 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCpMaWHXo+GGccUM8PiDJVWFdwPJGvkX/wxnMP7hwWA
 ## GPIO Pins
 Um die verschiedenen Komponenten, welche am Raspberry Pi angeschlossen sind, ansteuern zu können, verwenden wir die GPIO Pins des Raspberry Pis. Folgende Pins sind besetzt:
 
+* 5v: StepperH, Speisung
+
+
 * 12: ElectroMagnet, Outputsignal
 * 16: SharpSensor, Inputsignal
 * 18: Ultraschall, Outputsignal
+* 20: 
 * 24: Ultraschall, Inputsignal
+
+<img src="img/raspi_gpio_pins.jpg" style="width:300px">
 
 ## Distance Sensor
 
@@ -236,3 +242,7 @@ if __name__ == "__main__":
 Run bash script **after login**:
 
 * https://stackoverflow.com/questions/39024657/run-bash-script-after-login
+
+**THREADPOOL**:
+
+* https://medium.com/@bfortuner/python-multithreading-vs-multiprocessing-73072ce5600b
