@@ -16,7 +16,7 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.output(DIR, CW)
 
 step_count = SPR
-delay = .005 #in seconds (.005 = 5ms)
+delay = .0005 #in seconds (.005 = 5ms)
 
 
 class StepperV(threading.Thread):
