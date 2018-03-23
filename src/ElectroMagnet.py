@@ -4,7 +4,7 @@ import threading
 import time
 
 # GPIO Output Pin
-GPIO_TRIGGER = 12
+GPIO_TRIGGER = 4
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
@@ -23,12 +23,8 @@ class ElectroMagnet(threading.Thread):
         while self.running:
             print("Electromagnet still running...")
             time.sleep(5)
-        # print("\nElectromagnet OFF")
-        # GPIO.output(GPIO_TRIGGER, GPIO.LOW)
-        # GPIO.cleanup()
 
     def clean_up(self):
         print("\nElectromagnet OFF")
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
-	# GPIO.cleanup()
 	self.running = False
