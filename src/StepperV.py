@@ -16,7 +16,7 @@ GPIO.setup(STEP, GPIO.OUT)
 GPIO.output(DIR, CW)
 
 step_count = SPR
-delay = .0005
+delay = .0005 #in seconds (.005 = 5ms)
 
 
 class StepperV(threading.Thread):
@@ -31,7 +31,6 @@ class StepperV(threading.Thread):
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
-        # GPIO.cleanup()
 
     def clean_up(self):
         print("\nStepperV OFF")
