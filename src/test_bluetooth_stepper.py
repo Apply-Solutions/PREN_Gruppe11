@@ -5,6 +5,7 @@ import time
 if __name__ == '__main__':
     server = BluetoothServer()
     stepperH = StepperH()
+    server.start()
     print(server.isConnected)
     while not server.isConnected:
         print("waiting for connection to client")
