@@ -1,18 +1,20 @@
 from bluetooth import *
 from random import random
 import datetime
-import start_cat
 import sys
 import threading
 
 server_socket = BluetoothSocket(RFCOMM)
 client_sock = ''
 
+
 class BluetoothServer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.isAlive = True
         self.isConnected = False
+        self.isListening = False
+        self.hasStartSignal = False
         print("Bluetooth server started")
 
     def send_message(self, message):
@@ -20,6 +22,9 @@ class BluetoothServer(threading.Thread):
 
     def demo_data(self):
         return random() * 100
+
+    def getDatetime(self):
+        return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     def run(self):
         port = 8700
@@ -41,25 +46,20 @@ class BluetoothServer(threading.Thread):
         client_sock, client_info = server_socket.accept()
         print("Accepted connection from ", client_info)
         client_sock.send("status@" + status + "#")
+
         self.isConnected = True
-        while self.isAlive:
+        self.isListening = True
+        while self.isListening:
             received_data = client_sock.recv(1024)  # receiveData here
 
             if received_data.strip() == "disconnect":
-                client_sock.send(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@dack" + "#")  # disconnects client
+                client_sock.send(self.getDatetime() + "@dack" + "#")  # disconnects client
                 received_data = ""
                 client_sock.close()
                 sys.exit("Received disconnect message. Shutting down server.")
 
             elif received_data.strip() == "start-process":
-                print("Received message from client: " + received_data)
+                print("Received start signal from client. Changing state now...")
                 received_data = ""
-                # function call here
-                start_cat.start_cat(0)
                 status = "started"
-
-                x = demo_data()
-                y = demo_data()
-                print(client_sock)
-                client_sock.send(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@Position;" + str(x) + ";" + str(y) + "#")
-                # client_sock.send("HELLO")
+                self.hasStartSignal = True
