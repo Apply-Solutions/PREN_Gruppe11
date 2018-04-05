@@ -1,5 +1,5 @@
 from StepperH import StepperH
-from BTServer import BluetoothServer
+from BTServerTest import BluetoothServer
 import time
 
 if __name__ == '__main__':
