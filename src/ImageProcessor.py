@@ -2,46 +2,77 @@ import numpy as np
 import cv2
 import picamera
 from picamera.array import PiRGBArray
+from threading import Thread
 
 
-status = "OFF"
+class ImageProcessor(object):
+    is_where_found = False
 
-def angle_cos(p0, p1, p2):
-    d1, d2 = (p0 - p1).astype('float'), (p2 - p1).astype('float')
-    return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2)))
+    def __init__(self):
 
-def find_squares(img):
-    squares = []
+        resolution = (320, 240)
+        framerate = 32
 
-    for gray in cv2.split(img):
-        _retval, bin = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)
-        bin, contours, _hierarchy = cv2.findContours(bin, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        for cnt in contours:
-            cnt_len = cv2.arcLength(cnt, True)
-            cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
-            if len(cnt) == 4 and 1000 < cv2.contourArea(cnt) < 70000 and cv2.isContourConvex(cnt):
-                cnt = cnt.reshape(-1, 2)
-                max_cos = np.max([angle_cos(cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
-                if max_cos < 0.1:
-                    squares.append(cnt)
+        self.camera = picamera.PiCamera()
+        self.camera.resolution = resolution
+        self.camera.framerate = framerate
+        self.camera.exposure_mode = 'sports'
 
-    return squares
+        self.rawCapture = PiRGBArray(self.camera, resolution);
+        self.stream = self.camera.capture_continuous(self.rawCapture,
+                                                     format="bgr", use_video_port=True)
 
-def check_if_square(imageName):
-    camera = picamera.PiCamera()
-    camera.resolution = (320, 240)
-    camera.framerate = 10
-    camera.exposure_mode = 'sports'
+        self.stopped = False
+        is_where_found = False
 
-    rawCapture = PiRGBArray(camera)
-    camera.capture(rawCapture, format="bgr")
+    def start(self):
+        # start the thread to read frames from the video stream
+        Thread(target=self.check_if_square, args=()).start()
+        return self
 
-    list_of_squares = find_squares(rawCapture.array);
-    rawCapture.truncate(0)
+    def get_state(self):
+        return self.is_where_found;
 
-    if len(list_of_squares) == 0:
-        print("No Square found.")
-        return False
-    else:
-        print(str(len(list_of_squares)) + " Squares found!!")
-        return True
+    def stop(self):
+        self.stopped = True;
+
+    def check_if_square(self):
+        # keep looping infinitely until the thread is stopped
+        for f in self.stream:
+
+            if self.stopped:
+                self.stream.close()
+                self.rawCapture.close()
+                self.camera.close()
+                return
+
+            list_of_squares = self.find_squares(f.array);
+            self.rawCapture.truncate(0)
+
+            if len(list_of_squares) == 0:
+                self.is_where_found = False
+            else:
+                self.is_where_found = True
+
+    @staticmethod
+    def find_squares(img):
+        squares = []
+
+        for gray in cv2.split(img):
+            _retval, bin_image = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)
+            bin_image, contours, _hierarchy = cv2.findContours(bin_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            for cnt in contours:
+                cnt_len = cv2.arcLength(cnt, True)
+                cnt = cv2.approxPolyDP(cnt, 0.02 * cnt_len, True)
+                if len(cnt) == 4 and 1000 < cv2.contourArea(cnt) < 70000 and cv2.isContourConvex(cnt):
+                    cnt = cnt.reshape(-1, 2)
+                    max_cos = np.max([ImageProcessor.angle_cos(cnt[i], cnt[(i + 1) % 4], cnt[(i + 2) % 4]) for i in xrange(4)])
+                    if max_cos < 0.1:
+                        squares.append(cnt)
+
+        return squares
+
+    @staticmethod
+    def angle_cos(p0, p1, p2):
+        d1, d2 = (p0 - p1).astype('float'), (p2 - p1).astype('float')
+        return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2)))
