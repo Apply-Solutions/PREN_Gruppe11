@@ -45,22 +45,22 @@ if __name__ == '__main__':
     #        break
     #cv.destroyAllWindows()
 
+    print("Init Camera.")
+
     camera = picamera.PiCamera()
     camera.resolution = (320, 240)
-    camera.framerate = 10
+    camera.framerate = 32
     camera.exposure_mode = 'sports'
-
-    rawCapture = PiRGBArray(camera)
+    rawCapture = PiRGBArray(camera, size=(320, 240))
 
     # allow the camera to warmup
     time.sleep(0.1)
 
+    print("Start Capture")
     print(time.strftime("%d.%m.%Y %H:%M:%S"))
     counter = 0
-    while counter < 30:
-        camera.capture(rawCapture, format="bgr")
-
-        listOfSquares = find_squares(rawCapture.array)
+    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+        listOfSquares = find_squares(frame.array)
 
         if len(listOfSquares) == 0:
             print("No Square found.")
@@ -69,6 +69,9 @@ if __name__ == '__main__':
 
         rawCapture.truncate(0)
         counter = counter + 1
+
+        if counter == 30:
+            break
 
     #cv.destroyAllWindows()
     print(time.strftime("%d.%m.%Y %H:%M:%S"))
