@@ -1,12 +1,35 @@
 import numpy as np
 import cv2
 import picamera
+import time
 from picamera.array import PiRGBArray
 from threading import Thread
+import ImageProcessor
+
+
+if __name__ == '__main__':
+    print ("start")
+    img_processor = ImageProcessor.ImageProcessor()
+
+    print ("start processing")
+    img_processor.start()
+
+    count = 0
+
+    print(time.strftime("%d.%m.%Y %H:%M:%S"))
+    while count < 10:
+        print(img_processor.get_state())
+        count = count + 1
+        time.sleep(0.5)
+
+    print(time.strftime("%d.%m.%Y %H:%M:%S"))
+    img_processor.stop()
 
 
 class ImageProcessor(object):
     is_where_found = False
+
+    delay_in_sec = 0.1
 
     def __init__(self):
 
@@ -18,7 +41,7 @@ class ImageProcessor(object):
         self.camera.framerate = framerate
         self.camera.exposure_mode = 'sports'
 
-        self.rawCapture = PiRGBArray(self.camera, resolution);
+        self.rawCapture = PiRGBArray(self.camera, resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
                                                      format="bgr", use_video_port=True)
 
@@ -31,10 +54,10 @@ class ImageProcessor(object):
         return self
 
     def get_state(self):
-        return self.is_where_found;
+        return self.is_where_found
 
     def stop(self):
-        self.stopped = True;
+        self.stopped = True
 
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
@@ -46,13 +69,16 @@ class ImageProcessor(object):
                 self.camera.close()
                 return
 
-            list_of_squares = self.find_squares(f.array);
+            list_of_squares = self.find_squares(f.array)
+
             self.rawCapture.truncate(0)
 
             if len(list_of_squares) == 0:
                 self.is_where_found = False
             else:
                 self.is_where_found = True
+
+            time.sleep(self.delay_in_sec)
 
     @staticmethod
     def find_squares(img):
