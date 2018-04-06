@@ -41,7 +41,7 @@ class StepperH(threading.Thread):
 	while self.breaking:
 	    if self.delay < 0.005:
 		self.delay = math.exp(-self.count) + 0.0005
-		self.count = self.count - 0.05
+		self.count = self.count - 0.1
 	    else:
 		self.breaking = False
 	    GPIO.output(STEP, GPIO.HIGH)
