@@ -13,3 +13,4 @@ if __name__ == '__main__':
 	except(KeyboardInterrupt, SystemExit):
 		stepper.running = False
 		stepper.join()
+		print('stepper off')
