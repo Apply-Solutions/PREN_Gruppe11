@@ -1,7 +1,10 @@
 # Notes IT
 
+Distrelec: CHF 69.55.-  Christopher
+
 15.03.18
 23.03.18
+09.04.18
 
 ## Pi-Features
 

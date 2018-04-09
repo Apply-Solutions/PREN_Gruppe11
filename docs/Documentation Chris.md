@@ -14,7 +14,9 @@ Gemäss Anforderungen muss der Raspberry Pi direkt nach Aufstarten startbereit s
 
 **Automatischer Login als Root**
 
-// TODO
+Wie bereits erwähnt wollen wir uns als root einloggen oder zumindest als einen User der root-Rechte besitzt. Um sich direkt als root einzuloggen muss folgende Einstellung im `raspi-config` des Raspberry Pi's eingestellt sein:
+
+
 
 
 #### Timing
@@ -67,3 +69,12 @@ class myObject(threading.Thread):
  	def run(self):
  		#function performed while thread is running
 ```
+
+## Stepper
+
+### Beschleunigung
+Wir haben nach einem Test der Aufhängung am Stahldraht bemerkt, dass der Stepper nicht beschleunigt und zu ruckartig vorwärtsbewegt. Deswegen haben wir eine Beschleunigung eingebaut. Da die Schritte des Schrittmotors immer in einem Interval von zwei Delays (HIGH, LOW) funktionieren verwenden wir eine Exponentialfunktion, welche den Delay zwischen HIGH und LOW immer stärker reduziert. Der x-Wert beginnt vorläufig bei `x=5` und wird beendet wenn der y-Wert `y = 0.0005` erreicht hat. Der x-Wert wird vorläufig immer um 0.02 inkrementiert (nach Tests).
+
+$$y = e^{-x} + 0.0005$$
+
+
