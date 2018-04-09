@@ -1,5 +1,6 @@
 from bluetooth import *
 from random import random
+from StateMachine import StateMachine
 import datetime
 import sys
 import threading
@@ -8,13 +9,35 @@ server_socket = BluetoothSocket(RFCOMM)
 client_sock = ''
 
 
+def add_transitions(machine):
+    machine.add_transition(trigger='search',
+                           source='initialised',
+                           dest='searching')
+    machine.add_transition(trigger='connect',
+                           source='searching',
+                           dest='connecting')
+    machine.add_transition(trigger='connected',
+                           source='connecting',
+                           dest='connected')
+    machine.add_transition(trigger='wait_for_start_signal',
+                           source='connected',
+                           dest='waiting')
+    machine.add_transition(trigger='start_machine',
+                           source='waiting',
+                           dest='running')
+    machine.add_transition(trigger='stop_server',
+                           source='*',
+                           dest='stopped')
+
+
 class BluetoothServer(threading.Thread):
+    _states = ['initialised', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
+
     def __init__(self):
         threading.Thread.__init__(self)
         self.isAlive = True
-        self.isConnected = False
-        self.isListening = False
-        self.hasStartSignal = False
+        self.sm = StateMachine.get_bt_server_machine(self, BluetoothServer._states)
+        add_transitions(self.sm)
         print("Bluetooth server started")
 
     def send_message(self, message):
@@ -31,35 +54,46 @@ class BluetoothServer(threading.Thread):
         status = "paused"
         uuid = "00001105-0000-1000-8000-00805f9b34fb"
 
+        # Bind socket and start listening on port
         server_socket.bind(("", 0))
         server_socket.listen(1)
 
+        # Change state to searching
+        self.search()
+
         print("Listening on port %d" % port)
 
-        advertise_service( server_socket, "LaufkatzeT11",
-                           service_id = uuid,
-                           service_classes = [ uuid, SERIAL_PORT_CLASS ],
-                           profiles = [ SERIAL_PORT_PROFILE ]
-                           )
+        # Advertise service as available connection
+        advertise_service(server_socket, "LaufkatzeT11",
+                          service_id=uuid,
+                          service_classes=[uuid, SERIAL_PORT_CLASS],
+                          profiles=[SERIAL_PORT_PROFILE])
 
-
+        # Wait for incoming connection
         client_sock, client_info = server_socket.accept()
+
+        # Switch state to connect and afterwards to connected
+        self.connect()
+        self.connected()
+
         print("Accepted connection from ", client_info)
         client_sock.send("status@" + status + "#")
 
-        self.isConnected = True
-        self.isListening = True
-        while self.isListening:
+        # Switch state to waiting_for_start_signal
+        self.wait_for_start_signal()
+
+        while self.is_wait_for_start_signal() or self.is_running():
             received_data = client_sock.recv(1024)  # receiveData here
 
             if received_data.strip() == "disconnect":
                 client_sock.send(self.getDatetime() + "@dack" + "#")  # disconnects client
                 received_data = ""
                 client_sock.close()
+                self.stop_server()
                 sys.exit("Received disconnect message. Shutting down server.")
 
             elif received_data.strip() == "start-process":
                 print("Received start signal from client. Changing state now...")
                 received_data = ""
                 status = "started"
-                self.hasStartSignal = True
+                self.start_machine()

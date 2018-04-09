@@ -4,12 +4,12 @@ import picamera
 import time
 from picamera.array import PiRGBArray
 from threading import Thread
-import ImageProcessor
-
+from StateMachine import StateMachine
+from ImageProcessor import ImageProcessor
 
 if __name__ == '__main__':
     print ("start")
-    img_processor = ImageProcessor.ImageProcessor()
+    img_processor = ImageProcessor()
 
     print ("start processing")
     img_processor.start()
@@ -26,13 +26,24 @@ if __name__ == '__main__':
     img_processor.stop()
 
 
-class ImageProcessor(object):
-    is_where_found = False
+def add_transitions(machine):
+    machine.add_transition(trigger='start',
+                           source='initialising',
+                           dest='processing')
+    machine.add_transition(trigger='start',
+                           source='stopped',
+                           dest='processing')
 
+    machine.add_transition(trigger='stop',
+                           source='processing',
+                           dest='stop')
+
+
+class ImageProcessor:
+    _states = ['initialised', 'processing', 'stopped']
     delay_in_sec = 0.1
 
     def __init__(self):
-
         resolution = (320, 240)
         framerate = 32
 
@@ -44,9 +55,10 @@ class ImageProcessor(object):
         self.rawCapture = PiRGBArray(self.camera, resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
                                                      format="bgr", use_video_port=True)
+        self.sm = StateMachine(self, ImageProcessor._states)
+        add_transitions(self.sm)
 
-        self.stopped = False
-        is_where_found = False
+        self.is_where_found = False
 
     def start(self):
         # start the thread to read frames from the video stream
@@ -56,14 +68,11 @@ class ImageProcessor(object):
     def get_state(self):
         return self.is_where_found
 
-    def stop(self):
-        self.stopped = True
-
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
 
-            if self.stopped:
+            if self.is_stopped():
                 self.stream.close()
                 self.rawCapture.close()
                 self.camera.close()
