@@ -21,70 +21,41 @@ step_count = SPR
 delay = .0005
 
 
-def add_transitions(machine):
-    machine.add_transition(trigger='start',
-                           source='initialised',
-                           dest='running_forwards')
-
-    machine.add_transition(trigger='change_to_forwards',
-                           source='running_forwards',
-                           dest='running_backwards')
-    machine.add_transition(trigger='change_to_backwards',
-                           source='running_backwards',
-                           dest='running_forwards')
-
-    machine.add_transition(trigger='stop',
-                           source='running_forwards',
-                           dest='stopped')
-    machine.add_transition(trigger='stop',
-                           source='running_backwards',
-                           dest='stopped')
-
-    machine.add_transition(trigger='resume_forwards',
-                           source='stopped',
-                           dest='running_forwards')
-    machine.add_transition(trigger='resume_backwards',
-                           source='stopped',
-                           dest='running_backwards')
-
-
 class StepperH(threading.Thread):
     _states = ['initialised', 'running_forwards', 'running_backwards', 'stopped']
 
     def __init__(self):
         threading.Thread.__init__(self)
-        self.running = True
-        self.breaking = True
         self.delay = 0.05
         self.count = 5
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
-        add_transitions(self.sm)
 
     def run(self):
         print("\nStepperH ON")
 
-        while self.running:
-            if self.delay > 0.0005:
-                self.delay = math.exp(-self.count) + 0.0005
-                self.count = self.count + 0.02
+        while self.is_running_forwards():
+            self.do_steps()
+
+        self.clean_up()
+
+        print("[StepperH]: Waiting for state change")
+        while self.is_stopped():
+            pass
+
+        while self.is_running_forwards():
+            self.do_steps()
+
+    def do_steps(self):
+        if self.delay > 0.0005:
+            self.delay = math.exp(-self.count) + 0.0005
+            self.count = self.count + 0.02
 
         GPIO.output(STEP, GPIO.HIGH)
         sleep(self.delay)
         GPIO.output(STEP, GPIO.LOW)
         sleep(self.delay)
 
-        while self.breaking:
-            if self.delay < 0.005:
-                self.delay = math.exp(-self.count) + 0.0005
-                self.count = self.count - 0.1
-            else:
-                self.breaking = False
-            GPIO.output(STEP, GPIO.HIGH)
-            sleep(self.delay)
-            GPIO.output(STEP, GPIO.LOW)
-            sleep(self.delay)
-            GPIO.cleanup()
-
-    def clean_up(self):
+    @staticmethod
+    def clean_up():
         print("\nStepperH OFF")
-        self.running = False
+        GPIO.cleanup()
