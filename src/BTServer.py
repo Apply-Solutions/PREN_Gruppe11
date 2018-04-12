@@ -9,27 +9,6 @@ server_socket = BluetoothSocket(RFCOMM)
 client_sock = ''
 
 
-def add_transitions(machine):
-    machine.add_transition(trigger='search',
-                           source='initialised',
-                           dest='searching')
-    machine.add_transition(trigger='connect',
-                           source='searching',
-                           dest='connecting')
-    machine.add_transition(trigger='connected',
-                           source='connecting',
-                           dest='connected')
-    machine.add_transition(trigger='wait_for_start_signal',
-                           source='connected',
-                           dest='waiting')
-    machine.add_transition(trigger='start_machine',
-                           source='waiting',
-                           dest='running')
-    machine.add_transition(trigger='stop_server',
-                           source='*',
-                           dest='stopped')
-
-
 class BluetoothServer(threading.Thread):
     _states = ['initialised', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
 
@@ -48,6 +27,9 @@ class BluetoothServer(threading.Thread):
 
     def getDatetime(self):
         return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+    def get_sm(self):
+        return self.sm
 
     def run(self):
         port = 8700

@@ -26,21 +26,9 @@ if __name__ == '__main__':
     img_processor.stop()
 
 
-def add_transitions(machine):
-    machine.add_transition(trigger='start',
-                           source='initialising',
-                           dest='processing')
-    machine.add_transition(trigger='start',
-                           source='stopped',
-                           dest='processing')
-
-    machine.add_transition(trigger='stop',
-                           source='processing',
-                           dest='stop')
-
 
 class ImageProcessor:
-    _states = ['initialised', 'processing', 'stopped']
+    _states = ['initialised', 'processing', 'found_square']
     delay_in_sec = 0.1
 
     def __init__(self):
@@ -68,11 +56,14 @@ class ImageProcessor:
     def get_state(self):
         return self.is_where_found
 
+    def get_sm(self):
+        return self.sm
+
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
 
-            if self.is_stopped():
+            if not self.is_processing():
                 self.stream.close()
                 self.rawCapture.close()
                 self.camera.close()
