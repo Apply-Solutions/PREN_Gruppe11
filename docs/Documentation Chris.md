@@ -75,6 +75,20 @@ class myObject(threading.Thread):
 ### Beschleunigung
 Wir haben nach einem Test der Aufhängung am Stahldraht bemerkt, dass der Stepper nicht beschleunigt und zu ruckartig vorwärtsbewegt. Deswegen haben wir eine Beschleunigung eingebaut. Da die Schritte des Schrittmotors immer in einem Interval von zwei Delays (HIGH, LOW) funktionieren verwenden wir eine Exponentialfunktion, welche den Delay zwischen HIGH und LOW immer stärker reduziert. Der x-Wert beginnt vorläufig bei `x=5` und wird beendet wenn der y-Wert `y = 0.0005` erreicht hat. Der x-Wert wird vorläufig immer um 0.02 inkrementiert (nach Tests).
 
-$$y = e^{-x} + 0.0005$$
+> $$y = e^{-x} + 0.0005$$
 
 
+## Startposition
+
+### Plan A: Genaue Platzierung
+Unsere Idee ist es die Lauftkatze immer gleich am Start zu Positionieren. So kennen wir zu Beginn den Nullpunkt.
+
+Wir messen die Position der Laufkatze, die sich auf Höhe des hinteren Rades befindet, und die Position des Elektromagneten, da sich die Last auf dieser Höhe befinden wird. Die Startposition des Elektromagneten kennen wir sobald wir die Position zum ersten Masten kennen (
+
+> $\text{Startposition} = 0mm$<br>
+> $\text{Position Last} = \text{Startposition} + 110mm$
+
+### Plan B: Distanzmessung
+Unser Backupplan ist die Distanz zum hinteren Masten zu messen und so die Startposition der Laufkatze zu definieren.
+
+## Position bei Fortbewegung
