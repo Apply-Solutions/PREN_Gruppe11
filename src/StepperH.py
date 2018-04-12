@@ -45,6 +45,9 @@ class StepperH(threading.Thread):
         while self.is_running_forwards():
             self.do_steps()
 
+    def get_sm(self):
+        return self.sm
+
     def do_steps(self):
         if self.delay > 0.0005:
             self.delay = math.exp(-self.count) + 0.0005
