@@ -1,5 +1,5 @@
-from StepperH import StepperH
-from BTServerTest import BluetoothServer
+from src.StepperH import StepperH
+from src.BTServerTest import BluetoothServer
 import time
 
 if __name__ == '__main__':

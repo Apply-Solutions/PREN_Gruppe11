@@ -1,12 +1,13 @@
-import Distance
-import time
-import BTServer
 import math
+import time
+
 import numpy as np
-import StepperH
-import StepperV
-import ImageProcessor
-from time import sleep
+
+import archive.Distance
+import src.BTServer
+import src.ImageProcessor
+import src.StepperH
+import src.StepperV
 
 steps = 0
 
@@ -21,15 +22,15 @@ def start_cat(start_range):
         time.sleep(.5)
 
     start_horizontal()
-    ImageProcessor.status = "ON"
+    src.ImageProcessor.status = "ON"
 
-    while not ImageProcessor.status == "ON":
+    while not src.ImageProcessor.status == "ON":
         print("Checking for squares")
 
         time.sleep(.5)
 
     # IDEA: If stop, then take so many steps, then stop
-    StepperH.stop_motor(steps)
+    src.StepperH.stop_motor(steps)
     stop_image_processing()
     start_vertical()
 
@@ -43,7 +44,7 @@ def send_start_position():
     slope_radiant = math.radiant(8.13)  # 8.13 degrees
 
     for n in range(0, 5):
-        measurements[n] = Distance.distance()
+        measurements[n] = archive.Distance.distance()
         time.sleep(1)
 
     x = np.mean(measurements) * 10
@@ -51,7 +52,7 @@ def send_start_position():
 
     try:
         print("Measured Distance From Start Mast= %.1f mm" % x)
-        BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@Position;" + x + ";" + y)
+        src.BTServer.send_message(time.datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + "@Position;" + x + ";" + y)
         return True
     except Exception:
         print(Exception.message)
@@ -60,7 +61,7 @@ def send_start_position():
 
 def check_for_squares():
     # This method is just for test purposes
-    ImageProcessor.status == "ON"
+    src.ImageProcessor.status == "ON"
     image_name = "image_from_processor.jpg"
     camera = picamera.PiCamera()
     camera.resolution = (1024, 768)
@@ -68,7 +69,7 @@ def check_for_squares():
     camera.capture(image_name, resize=(320, 240))
     img = cv2.imread(image_name)
 
-    list_of_squares = ImageProcessor.find_squares(img);
+    list_of_squares = src.ImageProcessor.find_squares(img);
 
     if len(list_of_squares) == 0:
         print("No Square found.")
@@ -79,18 +80,18 @@ def check_for_squares():
 
 
 def stop_image_processing():
-    ImageProcessor.status = "OFF";
+    src.ImageProcessor.status = "OFF";
 
 
 # Maybe change to one program and
 # just pass the specific motor
 def start_horizontal():
-    StepperH.start_motor()
+    src.StepperH.start_motor()
 
 
 def start_vertical():
-    StepperV.start_motor()
+    src.StepperV.start_motor()
 
 
 def stop_vertical():
-    StepperV.status = "OFF"
+    src.StepperV.status = "OFF"

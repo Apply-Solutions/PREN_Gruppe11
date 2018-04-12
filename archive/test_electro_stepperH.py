@@ -1,5 +1,5 @@
-from StepperH import StepperH
-from ElectroMagnet import ElectroMagnet
+from src.StepperH import StepperH
+from src.ElectroMagnet import ElectroMagnet
 import time
 import RPi.GPIO as GPIO
 

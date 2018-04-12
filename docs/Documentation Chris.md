@@ -83,12 +83,14 @@ Wir haben nach einem Test der Aufhängung am Stahldraht bemerkt, dass der Steppe
 ### Plan A: Genaue Platzierung
 Unsere Idee ist es die Lauftkatze immer gleich am Start zu Positionieren. So kennen wir zu Beginn den Nullpunkt.
 
-Wir messen die Position der Laufkatze, die sich auf Höhe des hinteren Rades befindet, und die Position des Elektromagneten, da sich die Last auf dieser Höhe befinden wird. Die Startposition des Elektromagneten kennen wir sobald wir die Position zum ersten Masten kennen (
+Wir messen die Position der Laufkatze, die sich auf Höhe des hinteren Rades befindet, und die Position des Elektromagneten, da sich die Last auf dieser Höhe befinden wird. Die Startposition des Elektromagneten kennen wir sobald wir die Position zum ersten Masten kennen.
 
-> $\text{Startposition} = 0mm$<br>
+> $\text{Startposition} = 350mm$<br>
 > $\text{Position Last} = \text{Startposition} + 110mm$
 
 ### Plan B: Distanzmessung
 Unser Backupplan ist die Distanz zum hinteren Masten zu messen und so die Startposition der Laufkatze zu definieren.
 
 ## Position bei Fortbewegung
+
+* Winkel (ohne Korrektur) = 8.13°
