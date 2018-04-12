@@ -6,8 +6,6 @@ import numpy as np
 import StepperH
 import StepperV
 import ImageProcessor
-import cv2
-import picamera
 from time import sleep
 
 steps = 0
