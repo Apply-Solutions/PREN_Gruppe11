@@ -15,8 +15,7 @@ def add_stepperv_transitions(machine):
 
     machine.add_transition(trigger='stop',
                            source='running_upwards',
-                           dest='stopped',
-                           after='stepperv_at_position')
+                           dest='stopped')
     machine.add_transition(trigger='stop',
                            source='running_downwards',
                            dest='stopped')
