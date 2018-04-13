@@ -27,7 +27,8 @@ class ImageProcessor:
 
         self.is_where_found = False
 
-    def start(self):
+    def start_thread(self):
+        self.start()
         # start the thread to read frames from the video stream
         Thread(target=self.check_if_square, args=()).start()
         return self
