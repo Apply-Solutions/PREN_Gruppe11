@@ -1,4 +1,4 @@
-from src import StepperV
+from StepperV import StepperV
 
 
 def add_stepperv_transitions(machine):
