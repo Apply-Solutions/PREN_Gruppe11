@@ -5,26 +5,6 @@ import time
 from picamera.array import PiRGBArray
 from threading import Thread
 from StateMachine import StateMachine
-from ImageProcessor import ImageProcessor
-
-if __name__ == '__main__':
-    print ("start")
-    img_processor = ImageProcessor()
-
-    print ("start processing")
-    img_processor.start()
-
-    count = 0
-
-    print(time.strftime("%d.%m.%Y %H:%M:%S"))
-    while count < 10:
-        print(img_processor.get_state())
-        count = count + 1
-        time.sleep(0.5)
-
-    print(time.strftime("%d.%m.%Y %H:%M:%S"))
-    img_processor.stop()
-
 
 
 class ImageProcessor:
