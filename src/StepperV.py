@@ -13,7 +13,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(DIR, GPIO.OUT)
 GPIO.setup(STEP, GPIO.OUT)
 
-# set direction forward (clockwise)
+# set direction downward (clockwise)
 GPIO.output(DIR, CW)
 
 step_count = SPR
@@ -43,6 +43,10 @@ class StepperV(threading.Thread):
 
     def get_sm(self):
         return self.sm
+
+    @staticmethod
+    def change_direction(self):
+        GPIO.output(DIR, CCW)
 
     @staticmethod
     def clean_up():
