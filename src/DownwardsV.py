@@ -2,7 +2,7 @@ from StepperV import StepperV
 import time
 
 def add_stepperv_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='prepare',
                            source='initialised',
                            dest='running_upwards')
 
@@ -31,8 +31,10 @@ def add_stepperv_transitions(machine):
 if __name__ == '__main__':
     stepper = StepperV()
     add_stepperv_transitions(stepper.get_sm())
+    stepper.change_direction()    
 
     try:
+	stepper.prepare()
         stepper.start()
         while stepper.is_running_downwards or stepper.is_running_upwards:
 	    print("running")
