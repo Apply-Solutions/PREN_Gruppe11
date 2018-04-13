@@ -1,5 +1,5 @@
-from src import StepperV
-
+from StepperV import StepperV
+import time
 
 def add_stepperv_transitions(machine):
     machine.add_transition(trigger='start',
@@ -35,5 +35,11 @@ if __name__ == '__main__':
 
     try:
         stepper.start()
+        while stepper.is_running_downwards or stepper.is_running_upwards:
+	    print("running")
+	    time.sleep(1)
+
+	print("Stop")
     except KeyboardInterrupt:
-        stepper.stop()
+        running = False
+	stepper.stop()
