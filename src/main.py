@@ -78,6 +78,11 @@ def add_stepperv_transitions(machine):
                            source='running_downwards',
                            dest='stopped')
 
+    machine.add_transition(trigger='send_at_position_signal',
+                           source='running_downwards',
+                           dest='at_destination_pos',
+                           after='cargo_at_bay')
+
     machine.add_transition(trigger='resume_upwards',
                            source='stopped',
                            dest='running_upwards')
@@ -98,6 +103,19 @@ def add_imgproc_transitions(machine):
                            source='processing',
                            dest='found_square',
                            after='found_destination')
+
+
+def add_magnet_transitions(machine):
+    machine.add_transitions(target='power_on',
+                            source='initialised',
+                            dest='on')
+    machine.add_transitions(target='power_on',
+                            source='off',
+                            dest='on')
+
+    machine.add_transitions(target='power_off',
+                            source='on',
+                            dest='off')
 
 
 class MainThread(object):
@@ -144,7 +162,7 @@ def stepperh_at_position():
     # TODO: change current position
     stepperV.current_pos = stepperH.get_y()
     stepperV.start()
-    electroMagnet.start()
+    electroMagnet.power_on()
 
 
 def stepperv_at_position():
@@ -160,3 +178,7 @@ def found_destination():
     # TODO: change current position
     stepperV.current_pos = stepperH.get_y()
     stepperV.resume_downwards()
+
+
+def cargo_at_bay():
+    electroMagnet.power_off()
