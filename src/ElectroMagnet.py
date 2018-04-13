@@ -11,19 +11,6 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 
 
-def add_transitions(machine):
-    machine.add_transitions(target='power_on',
-                            source='initialised',
-                            dest='on')
-    machine.add_transitions(target='power_on',
-                            source='off',
-                            dest='on')
-
-    machine.add_transitions(target='power_off',
-                            source='on',
-                            dest='off')
-
-
 class ElectroMagnet(threading.Thread):
     _states = ['initialised', 'on', 'off']
 
@@ -31,7 +18,6 @@ class ElectroMagnet(threading.Thread):
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
         threading.Thread.__init__(self)
         self.sm = StateMachine.get_stepperh_machine(self, ElectroMagnet._states)
-        add_transitions(self.sm)
 
     def run(self):
         GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
