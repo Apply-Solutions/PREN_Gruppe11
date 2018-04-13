@@ -23,8 +23,7 @@ class ImageProcessor:
         self.rawCapture = PiRGBArray(self.camera, resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
                                                      format="bgr", use_video_port=True)
-        self.sm = StateMachine(self, ImageProcessor._states)
-        add_transitions(self.sm)
+        self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
 
         self.is_where_found = False
 
