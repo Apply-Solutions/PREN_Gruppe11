@@ -21,7 +21,7 @@ delay = .0005  # in seconds (.005 = 5ms)
 
 
 class StepperV(threading.Thread):
-    _states = ['initialised', 'running_upwards', 'running_downwards', 'stopped']
+    _states = ['initialised', 'running_upwards', 'running_downwards', 'at_destination_pos', 'stopped']
 
     current_pos = 0
     has_cargo = False
