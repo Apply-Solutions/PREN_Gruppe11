@@ -16,7 +16,6 @@ class BluetoothServer(threading.Thread):
         threading.Thread.__init__(self)
         self.isAlive = True
         self.sm = StateMachine.get_bt_server_machine(self, BluetoothServer._states)
-        add_transitions(self.sm)
         print("Bluetooth server started")
 
     def send_message(self, message):

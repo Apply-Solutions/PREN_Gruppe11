@@ -3,28 +3,17 @@ from StepperH import StepperH
 from StepperV import StepperV
 from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
+from StateMachine import StateMachine
 
-_states = ['initialised', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
+_states = ['initialised', 'running', 'stopped']
 
 
-def add_transitions(machine):
-    machine.add_transition(trigger='search',
+def add_mainthread_transitions(machine):
+    machine.add_transition(trigger='start',
                            source='initialised',
-                           dest='searching')
-    machine.add_transition(trigger='connect',
-                           source='searching',
-                           dest='connecting')
-    machine.add_transition(trigger='connected',
-                           source='connecting',
-                           dest='connected')
-    machine.add_transition(trigger='wait_for_start_signal',
-                           source='connected',
-                           dest='waiting')
-    machine.add_transition(trigger='start_machine',
-                           source='waiting',
                            dest='running')
-    machine.add_transition(trigger='stop_server',
-                           source='*',
+    machine.add_transition(trigger='stop',
+                           source='running',
                            dest='stopped')
 
 
@@ -110,6 +99,10 @@ def add_imgproc_transitions(machine):
                            dest='found_square',
                            after='found_destination')
 
+
+class MainThread(object):
+    pass
+
 # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
 # 1. BTServer starten
 # 2. BTServer Signal erhalten -> StepperH starten
@@ -121,12 +114,16 @@ def add_imgproc_transitions(machine):
 
 
 if __name__ == '__main__':
+    mainthread = MainThread()
+
     # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
+    self_sm = StateMachine.get_main_machine(mainthread, _states)
     server = BluetoothServer()
     stepperH = StepperH()
     stepperV = StepperV()
     imgProcessor = ImageProcessor()
     electroMagnet = ElectroMagnet()
+    add_mainthread_transitions(self_sm)
     add_btserver_transitions(server.get_sm())
     add_stepperh_transitions(stepperH.get_sm())
     add_stepperv_transitions(stepperV.get_sm())
@@ -134,6 +131,9 @@ if __name__ == '__main__':
 
     # 1. BTServer starten
     server.start()
+
+    while mainthread.is_running():
+        pass
 
 
 def server_got_signal():
