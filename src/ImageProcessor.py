@@ -26,6 +26,8 @@ class ImageProcessor:
         self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
 
         self.is_where_found = False
+        self.center_x = 0
+        self.center_y = 0
 
     def start_thread(self):
         self.start()
@@ -39,6 +41,12 @@ class ImageProcessor:
     def get_sm(self):
         return self.sm
 
+    def get_center_x(self):
+        return self.center_x
+
+    def get_center_y(self):
+        return self.center_y
+
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
@@ -50,8 +58,19 @@ class ImageProcessor:
                 return
 
             list_of_squares = self.find_squares(f.array)
-
             self.rawCapture.truncate(0)
+
+            # calculate center
+            x_list = []
+            y_list = []
+
+            for square in list_of_squares:
+                m = cv2.moments(square)
+                x_list.append(int(m["m10"] / m["m00"]))
+                y_list.append(int(m["m01"] / m["m00"]))
+
+            self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
+            self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
             if len(list_of_squares) == 0:
                 self.is_where_found = False
