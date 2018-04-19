@@ -60,21 +60,21 @@ class ImageProcessor:
             list_of_squares = self.find_squares(f.array)
             self.rawCapture.truncate(0)
 
-            # calculate center
-            x_list = []
-            y_list = []
-
-            for square in list_of_squares:
-                m = cv2.moments(square)
-                x_list.append(int(m["m10"] / m["m00"]))
-                y_list.append(int(m["m01"] / m["m00"]))
-
-            self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
-            self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
-
             if len(list_of_squares) == 0:
                 self.is_where_found = False
             else:
+                # calculate center
+                x_list = []
+                y_list = []
+
+                for square in list_of_squares:
+                    m = cv2.moments(square)
+                    x_list.append(int(m["m10"] / m["m00"]))
+                    y_list.append(int(m["m01"] / m["m00"]))
+
+                self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
+                self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
+
                 self.is_where_found = True
 
             time.sleep(self.delay_in_sec)

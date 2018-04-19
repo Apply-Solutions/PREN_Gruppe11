@@ -37,22 +37,23 @@ if __name__ == '__main__':
         img = cv2.imread(fn)
         squares = find_squares(img)
 
-        # calculate center
-        x_list = []
-        y_list = []
+        if len(squares) > 0:
+            # calculate center
+            x_list = []
+            y_list = []
 
-        for square in squares:
-            m = cv2.moments(square)
-            x_list.append(int(m["m10"] / m["m00"]))
-            y_list.append(int(m["m01"] / m["m00"]))
+            for square in squares:
+                m = cv2.moments(square)
+                x_list.append(int(m["m10"] / m["m00"]))
+                y_list.append(int(m["m01"] / m["m00"]))
 
-        print reduce(lambda x, y: x + y, x_list) / float(len(x_list))
-        print reduce(lambda x, y: x + y, y_list) / float(len(y_list))
+            print reduce(lambda x, y: x + y, x_list) / float(len(x_list))
+            print reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
-        cv2.drawContours(img, squares, -1, (0, 255, 0), 3)
-        cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', img)
-        ch = cv2.waitKey()
-        count = count + 1
+            cv2.drawContours(img, squares, -1, (0, 255, 0), 3)
+            cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', img)
+            ch = cv2.waitKey()
+            count = count + 1
 
         if ch == 27:
            break
