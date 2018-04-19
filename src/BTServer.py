@@ -31,15 +31,6 @@ class BluetoothServer(threading.Thread):
     def get_sm(self):
         return self.sm
 
-    def server_got_signal(self):
-        print("Server received start signal")
-
-        while self.is_running():
-            data = self.getDatetime() + "@position;" + self.demo_data() + ";" + self.demo_data() + "#"
-            print(data)
-
-            self.__client_sock__.send(data)
-
     def run(self):
         port = 8700
         status = "paused"

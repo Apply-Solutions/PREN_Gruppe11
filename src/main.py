@@ -131,29 +131,6 @@ class MainThread(object):
 # 7. Wait until StepperV stopped + ImageProcessing stopped
 
 
-if __name__ == '__main__':
-    mainthread = MainThread()
-
-    # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
-    self_sm = StateMachine.get_main_machine(mainthread, _states)
-    server = BluetoothServer()
-    stepperH = StepperH()
-    stepperV = StepperV()
-    imgProcessor = ImageProcessor()
-    electroMagnet = ElectroMagnet()
-    add_mainthread_transitions(self_sm)
-    add_btserver_transitions(server.get_sm())
-    add_stepperh_transitions(stepperH.get_sm())
-    add_stepperv_transitions(stepperV.get_sm())
-    add_imgproc_transitions(imgProcessor.get_sm())
-
-    # 1. BTServer starten
-    server.start()
-
-    while mainthread.is_running():
-        pass
-
-
 def server_got_signal():
     stepperH.start()
 
@@ -182,3 +159,36 @@ def found_destination():
 
 def cargo_at_bay():
     electroMagnet.power_off()
+
+
+if __name__ == '__main__':
+    mainthread = MainThread()
+
+    # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
+    self_sm = StateMachine.get_main_machine(mainthread, _states)
+    server = BluetoothServer()
+    stepperH = StepperH()
+    stepperV = StepperV()
+    imgProcessor = ImageProcessor()
+    electroMagnet = ElectroMagnet()
+
+    # Add transitions
+    add_mainthread_transitions(self_sm)
+    add_btserver_transitions(server.get_sm())
+    add_stepperh_transitions(stepperH.get_sm())
+    add_stepperv_transitions(stepperV.get_sm())
+    add_imgproc_transitions(imgProcessor.get_sm())
+
+    # Dynamically add methods
+    server.server_got_signal = server_got_signal
+    stepperH.stepperh_at_position = stepperh_at_position
+    stepperV.stepperv_at_position = stepperv_at_position
+    stepperV.cargo_at_bay = cargo_at_bay
+    imgProcessor.found_destination = found_destination
+
+    # 1. BTServer starten
+    server.start()
+
+    while mainthread.is_running():
+        pass
+
