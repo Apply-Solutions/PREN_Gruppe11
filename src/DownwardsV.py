@@ -2,6 +2,7 @@ from StepperV import StepperV
 
 import time
 
+
 def add_stepperv_transitions(machine):
     machine.add_transition(trigger='prepare',
                            source='initialised',
@@ -44,4 +45,4 @@ if __name__ == '__main__':
 	print("Stop")
     except KeyboardInterrupt:
         running = False
-	stepper.stop()
+        stepper.stop()

@@ -2,8 +2,9 @@ from StepperV import StepperV
 
 import time
 
+
 def add_stepperv_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='prepare',
                            source='initialised',
                            dest='running_upwards')
 
@@ -16,8 +17,7 @@ def add_stepperv_transitions(machine):
 
     machine.add_transition(trigger='stop',
                            source='running_upwards',
-                           dest='stopped',
-                           after='stepperv_at_position')
+                           dest='stopped')
     machine.add_transition(trigger='stop',
                            source='running_downwards',
                            dest='stopped')
@@ -31,15 +31,20 @@ def add_stepperv_transitions(machine):
 
 
 if __name__ == '__main__':
-    stepper = StepperV
+    CW = 0;
+    CCW = 1;
+    stepper = StepperV()
     add_stepperv_transitions(stepper.get_sm())
-    stepper.change_direction()
+    stepper.set_direction(CCW);
 
     try:
+	stepper.prepare()
         stepper.start()
-	while stepper.is_running_upwards() and stepper.is_running_downwards():
+        while stepper.is_running_downwards or stepper.is_running_upwards:
 	    print("running")
 	    time.sleep(1)
+
+	print("Stop")
     except KeyboardInterrupt:
+        running = False
         stepper.stop()
-	print("stopped")
