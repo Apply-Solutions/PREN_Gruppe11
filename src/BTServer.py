@@ -10,20 +10,15 @@ server_socket = BluetoothSocket(RFCOMM)
 
 class BluetoothServer(threading.Thread):
     _states = ['initialised', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
-
     __client_sock__ = ''
 
     def __init__(self):
         threading.Thread.__init__(self)
-        self.isAlive = True
         self.sm = StateMachine.get_bt_server_machine(self, BluetoothServer._states)
         print("Bluetooth server started")
 
     def send_message(self, message):
         self.__client_sock__.send(message)
-
-    def demo_data(self):
-        return str(random() * 100)
 
     def getDatetime(self):
         return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -37,7 +32,7 @@ class BluetoothServer(threading.Thread):
         uuid = "00001105-0000-1000-8000-00805f9b34fb"
 
         # Bind socket and start listening on port
-        server_socket.bind(("", 0))
+        server_socket.bind(("", port))
         server_socket.listen(1)
 
         # Change state to searching
@@ -66,16 +61,17 @@ class BluetoothServer(threading.Thread):
 
         while self.is_waiting() or self.is_running():
             received_data = self.__client_sock__.recv(1024)  # receiveData here
+            received_data = received_data.strip()
 
-            if received_data.strip() == "disconnect":
+            if received_data == "disconnect":
                 self.__client_sock__.send(self.getDatetime() + "@dack" + "#")  # disconnects client
                 received_data = ""
                 self.__client_sock__.close()
                 self.stop_server()
-                sys.exit("Received disconnect message. Shutting down server.")
 
-            elif received_data.strip() == "start-process":
+            elif "start-process" in received_data:
                 print("Received start signal from client. Changing state now...")
-                received_data = "" # Receive steps
+                steps = received_data[received_data.find("@") + 1:]
+                received_data = ""
                 status = "started"
-                self.start_machine()
+                self.start_machine(steps)
