@@ -38,13 +38,12 @@ if __name__ == '__main__':
     stepper.set_direction(CCW);
 
     try:
-	stepper.prepare()
+        stepper.prepare()
         stepper.start()
         while stepper.is_running_downwards or stepper.is_running_upwards:
-	    print("running")
-	    time.sleep(1)
-
-	print("Stop")
+            print("running")
+            time.sleep(1)
+        print("Stop")
     except KeyboardInterrupt:
         running = False
         stepper.stop()

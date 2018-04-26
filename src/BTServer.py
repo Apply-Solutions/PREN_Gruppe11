@@ -76,6 +76,6 @@ class BluetoothServer(threading.Thread):
 
             elif received_data.strip() == "start-process":
                 print("Received start signal from client. Changing state now...")
-                received_data = ""
+                received_data = "" # Receive steps
                 status = "started"
                 self.start_machine()

@@ -37,7 +37,7 @@ class StepperV(threading.Thread):
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
-	self.clean_up()
+        self.clean_up()
 
     def calculate_pos(self):
         pass
@@ -46,8 +46,9 @@ class StepperV(threading.Thread):
         return self.sm
 
     @staticmethod
-    def change_direction():
-        GPIO.output(DIR, CCW)
+    def set_direction(direction):
+        GPIO.output(DIR, direction)
+        print("Direction: "+str(direction))
 
     @staticmethod
     def clean_up():

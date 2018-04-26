@@ -1,6 +1,7 @@
-from StepperH import StepperH
+from SpecificStepperH import StepperH
 
 import time
+import sys
 
 
 def add_stepperv_transitions(machine):
@@ -34,6 +35,8 @@ if __name__ == '__main__':
     stepper = StepperH()
     add_stepperv_transitions(stepper.get_sm())
     stepper.set_direction(0)
+    steps = int(sys.argv[1])
+    stepper.set_steps(steps)
 
     try:
 	stepper.prepare()

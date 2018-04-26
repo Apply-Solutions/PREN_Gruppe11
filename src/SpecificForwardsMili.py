@@ -39,13 +39,13 @@ if __name__ == '__main__':
     stepper.set_steps_cm(stepsInMili)
 
     try:
-	stepper.prepare()
+        stepper.prepare()
         stepper.start()
         while stepper.is_running_backwards or stepper.is_running_forwards:
-	    print("running")
-	    time.sleep(2)
+            print("running")
+            time.sleep(2)
 
-	print("Stop")
+	    print("Stop")
     except KeyboardInterrupt:
         running = False
         stepper.stop()

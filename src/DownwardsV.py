@@ -31,18 +31,19 @@ def add_stepperv_transitions(machine):
 
 
 if __name__ == '__main__':
+    CW = 0;
+    CCW = 1;
     stepper = StepperV()
     add_stepperv_transitions(stepper.get_sm())
-    stepper.change_direction()    
+    stepper.set_direction(CW);
 
     try:
-	stepper.prepare()
+        stepper.prepare()
         stepper.start()
         while stepper.is_running_downwards or stepper.is_running_upwards:
-	    print("running")
-	    time.sleep(1)
-
-	print("Stop")
+            print("running")
+            time.sleep(1)
+        print("Stop")
     except KeyboardInterrupt:
         running = False
         stepper.stop()

@@ -33,14 +33,14 @@ def add_stepperv_transitions(machine):
 if __name__ == '__main__':
     stepper = StepperH()
     add_stepperv_transitions(stepper.get_sm())
-    #stepper.change_direction()
+    stepper.set_direction(0)
 
     try:
 	stepper.prepare()
         stepper.start()
         while stepper.is_running_backwards or stepper.is_running_forwards:
 	    print("running")
-	    time.sleep(1)
+	    time.sleep(2)
 
 	print("Stop")
     except KeyboardInterrupt:

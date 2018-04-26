@@ -33,7 +33,7 @@ def add_stepperv_transitions(machine):
 if __name__ == '__main__':
     stepper = StepperH()
     add_stepperv_transitions(stepper.get_sm())
-    #stepper.change_direction()
+    stepper.set_direction(1)
 
     try:
 	stepper.prepare()

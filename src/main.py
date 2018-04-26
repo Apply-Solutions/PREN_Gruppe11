@@ -1,7 +1,7 @@
 from BTServer import BluetoothServer
 from StepperH import StepperH
 from StepperV import StepperV
-from ImageProcessor import ImageProcessor
+#from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
 from StateMachine import StateMachine
 
@@ -40,7 +40,7 @@ def add_btserver_transitions(machine):
 
 
 def add_stepperh_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='start_stepperH',
                            source='initialised',
                            dest='running_forwards')
 
@@ -48,7 +48,7 @@ def add_stepperh_transitions(machine):
                            source='running_forwards',
                            dest='running_backwards')
 
-    machine.add_transition(trigger='stop',
+    machine.add_transition(trigger='stop_stepperH',
                            source='running_forwards',
                            dest='stopped',
                            after='stepperh_at_position')
@@ -59,7 +59,7 @@ def add_stepperh_transitions(machine):
 
 
 def add_stepperv_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='start_stepperV',
                            source='initialised',
                            dest='running_upwards')
 
@@ -70,11 +70,11 @@ def add_stepperv_transitions(machine):
                            source='running_downwards',
                            dest='running_upwards')
 
-    machine.add_transition(trigger='stop',
+    machine.add_transition(trigger='stop_stepperV',
                            source='running_upwards',
                            dest='stopped',
                            after='stepperv_at_position')
-    machine.add_transition(trigger='stop',
+    machine.add_transition(trigger='stop_stepperV',
                            source='running_downwards',
                            dest='stopped')
 
@@ -92,14 +92,14 @@ def add_stepperv_transitions(machine):
 
 
 def add_imgproc_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='start_imgproc',
                            source='initialising',
                            dest='processing')
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='start_imgproc',
                            source='stopped',
                            dest='processing')
 
-    machine.add_transition(trigger='stop',
+    machine.add_transition(trigger='stop_imgproc',
                            source='processing',
                            dest='found_square',
                            after='found_destination')
@@ -131,7 +131,10 @@ class MainThread(object):
 # 7. Wait until StepperV stopped + ImageProcessing stopped
 
 
-def server_got_signal():
+def server_got_signal(steps):
+    print("[ Main Thread ]: server got signal")
+    print("[ Main Thread ]: Get X, "+str(stepperH.get_x()))
+    stepperH.set_distance(steps)
     stepperH.start()
 
 
@@ -144,7 +147,8 @@ def stepperh_at_position():
 
 def stepperv_at_position():
     if stepperV.has_cargo:
-        imgProcessor.start()
+        #imgProcessor.start()
+        pass
 
     stepperH.resume_forwards()
 
@@ -162,33 +166,39 @@ def cargo_at_bay():
 
 
 if __name__ == '__main__':
-    mainthread = MainThread()
+    try:
+        mainthread = MainThread()
 
-    # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
-    self_sm = StateMachine.get_main_machine(mainthread, _states)
-    server = BluetoothServer()
-    stepperH = StepperH()
-    stepperV = StepperV()
-    imgProcessor = ImageProcessor()
-    electroMagnet = ElectroMagnet()
+        # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
+        self_sm = StateMachine.get_main_machine(mainthread, _states)
+        server = BluetoothServer()
+        stepperH = StepperH()
+        stepperV = StepperV()
+        #imgProcessor = ImageProcessor()
+        electroMagnet = ElectroMagnet()
 
-    # Add transitions
-    add_mainthread_transitions(self_sm)
-    add_btserver_transitions(server.get_sm())
-    add_stepperh_transitions(stepperH.get_sm())
-    add_stepperv_transitions(stepperV.get_sm())
-    add_imgproc_transitions(imgProcessor.get_sm())
+        # Add transitions
+        add_mainthread_transitions(self_sm)
+        add_btserver_transitions(server.get_sm())
+        add_stepperh_transitions(stepperH.get_sm())
+        add_stepperv_transitions(stepperV.get_sm())
+        #add_imgproc_transitions(imgProcessor.get_sm())
 
-    # Dynamically add methods
-    server.server_got_signal = server_got_signal
-    stepperH.stepperh_at_position = stepperh_at_position
-    stepperV.stepperv_at_position = stepperv_at_position
-    stepperV.cargo_at_bay = cargo_at_bay
-    imgProcessor.found_destination = found_destination
+        # Dynamically add methods
+        server.server_got_signal = server_got_signal
+        stepperH.stepperh_at_position = stepperh_at_position
+        stepperV.stepperv_at_position = stepperv_at_position
+        stepperV.cargo_at_bay = cargo_at_bay
+        #imgProcessor.found_destination = found_destination
 
-    # 1. BTServer starten
-    server.start()
+        # 1. BTServer starten
+        server.start()
 
-    while mainthread.is_running():
-        pass
-
+        while mainthread.is_running():
+            pass
+    except KeyboardInterrupt:
+        server.stop()
+        stepperH.stop()
+        stepperV.stop()
+        #imgProcessor.stop()
+        electroMagnet.stop()

@@ -28,6 +28,7 @@ class StepperH(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.steps = 0;
+        self.lastStep = 0;
         self.delay = 0.05
         self.count = 5
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
@@ -35,7 +36,6 @@ class StepperH(threading.Thread):
     def run(self):
         print("\nStepperH ON")
 
-        # TODO: Change to actual pos
         while self.is_running_forwards() and self.get_x() < 20:
             self.do_steps()
 
@@ -45,7 +45,7 @@ class StepperH(threading.Thread):
         while self.is_stopped():
             pass
 
-        while self.is_running_forwards():
+        while self.is_running_forwards() and self.steps < self.lastStep:
             self.do_steps()
         self.clean_up()
 
@@ -73,6 +73,14 @@ class StepperH(threading.Thread):
         self.position[0] += 1
         self.position[1] += 1
 
+    def set_steps(self, steps):
+        self.lastStep = steps
+
+    def set_steps_cm(self, distanceInMili):
+        y = distanceInMili/float(10)
+        steps = round(-100*(math.sqrt(-1000*(y - 2215.269))-1480), 0)
+        self.lastStep = steps
+
     def get_x(self):
         return self.position[0]
 
@@ -82,7 +90,6 @@ class StepperH(threading.Thread):
     @staticmethod
     def set_direction(direction):
         GPIO.output(DIR, direction)
-
     @staticmethod
     def clean_up():
         print("\nStepperH OFF")

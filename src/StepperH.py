@@ -26,26 +26,33 @@ class StepperH(threading.Thread):
     position = [0, 0]
 
     def __init__(self):
+        print("[ StepperH ]: initialising")
         threading.Thread.__init__(self)
+        self.amount_of_steps = 0
+        self.steps_taken = 0
+        self.steps = 0
         self.delay = 0.05
         self.count = 5
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
+        print("[ StepperH ]: Set delay between steps to " + str(self.delay) + "s")
+        print("[ StepperH ]: initialized")
 
     def run(self):
-        print("\nStepperH ON")
+        print("\n[ StepperH ]: ON")
 
-        # TODO: Change to actual pos
-        while self.is_running_forwards() and self.get_x() < 20:
+        while self.steps_taken < self.amount_of_steps:
             self.do_steps()
 
         self.clean_up()
-
-        print("[StepperH]: Waiting for state change")
+        print("[ StepperH ]: OFF")
+        print("[ StepperH ]: Stepper took "+str(self.steps_taken)+" before stopping")
+        print("[ StepperH ]: Waiting for state change")
         while self.is_stopped():
             pass
 
         while self.is_running_forwards():
             self.do_steps()
+        self.clean_up()
 
     def get_sm(self):
         return self.sm
@@ -55,11 +62,18 @@ class StepperH(threading.Thread):
             self.delay = math.exp(-self.count) + 0.0005
             self.count = self.count + 0.02
 
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(DIR, GPIO.OUT)
+        GPIO.setup(STEP, GPIO.OUT)
+
+        self.steps = self.steps + 1
         GPIO.output(STEP, GPIO.HIGH)
         sleep(self.delay)
         GPIO.output(STEP, GPIO.LOW)
         sleep(self.delay)
+        self.steps_taken += 1
         self.update_position()
+        print(self.steps)
 
     def update_position(self):
         self.position[0] += 1
@@ -70,6 +84,15 @@ class StepperH(threading.Thread):
 
     def get_y(self):
         return self.position[1]
+
+    def set_distance(self, steps):
+        self.amount_of_steps = steps
+        print("[ StepperH ]: Set amount of steps to " + str(self.amount_of_steps))
+
+    @staticmethod
+    def set_direction(direction):
+        GPIO.output(DIR, direction)
+        print("[ StepperH ]: Set direction to "+str(direction))
 
     @staticmethod
     def clean_up():
