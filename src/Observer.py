@@ -1,16 +1,12 @@
+from abc import abstractmethod, ABCMeta
+
+
 class Observer:
+    __metaclass__ = ABCMeta
+
     def __init__(self):
-        self.subscribers = dict()
-        print("OK")
+        pass
 
-    def register(self, who, callback=None):
-        if callback is None:
-            callback = getattr(who, 'update')
-        self.subscribers[who] = callback
-
-    def unregister(self, who):
-        del self.subscribers[who]
-
-    def dispatch(self, message):
-        for subscriber, callback in self.subscribers.items():
-            callback(message)
+    @abstractmethod
+    def update(self, message):
+        pass

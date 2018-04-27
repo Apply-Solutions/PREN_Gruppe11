@@ -4,10 +4,11 @@ from StepperV import StepperV
 #from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
 from StateMachine import StateMachine
+from Observer import Observer
 import time
 
 _states = ['initialised', 'running', 'stopped']
-
+server = 0
 
 def add_mainthread_transitions(machine):
     machine.add_transition(trigger='start',
@@ -121,8 +122,19 @@ def add_magnet_transitions(machine):
                             dest='off')
 
 
-class MainThread(object):
-    pass
+class MainThread(Observer):
+
+    def __init__(self):
+        Observer.__init__(self)
+        self.message_number = 0
+
+    def update(self, message):
+        if(self.message_number > 10):
+            server.send_message(server.getDatetime() + "@[ position ];" + message + "#")
+        if(self.message_number <= 10):
+            self.message_number += 1
+        else:
+            self.message_number = 0
 
 # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
 # 1. BTServer starten
@@ -184,6 +196,8 @@ if __name__ == '__main__':
         stepperV = StepperV()
         #imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
+
+        stepperH.register(mainthread)
 
         # Add transitions
         add_mainthread_transitions(self_sm)

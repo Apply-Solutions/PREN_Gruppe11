@@ -3,6 +3,7 @@ from StateMachine import StateMachine
 import math
 import RPi.GPIO as GPIO
 import threading
+from Observable import Observable
 
 DIR = 24  # Direction GPIO Pin
 STEP = 23  # Step GPIO Pin
@@ -21,13 +22,14 @@ step_count = SPR
 delay = .0005
 
 
-class StepperH(threading.Thread):
+class StepperH(threading.Thread, Observable):
     _states = ['initialised', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
     def __init__(self):
         print("[ StepperH ] initialising")
         threading.Thread.__init__(self)
+        Observable.__init__(self)
         self.amount_of_steps = 0
         self.steps_taken = 0
         self.delay = 0.05
@@ -77,6 +79,7 @@ class StepperH(threading.Thread):
         sleep(self.delay)
         self.steps_taken += 1
         self.update_position()
+        Observable.dispatch(self, str(self.get_x()) + ";" + str(self.get_y()))
 
     def update_position(self):
         self.position[0] += 1

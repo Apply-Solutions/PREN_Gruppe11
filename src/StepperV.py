@@ -29,7 +29,7 @@ class StepperV(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
-        self.sm = StateMachine.get_stepperh_machine(self, StepperV._states)
+        self.sm = StateMachine.get_stepperv_machine(self, StepperV._states)
         self.amount_of_steps = 0
         self.steps_taken = 0
         print("[ StepperV ] initialised")
@@ -47,19 +47,19 @@ class StepperV(threading.Thread):
             self.steps_taken += 1
         print("[ StepperV ] OFF")
         print("[ StepperV ] Steps taken: "+str(self.steps_taken))
-        self.clean_up()
-
         print("[ StepperV ] Waiting for cargo...")
 
         # 2. Wait at cargo until state changes from main
-        while self.stepperv_at_cargo:
+        while self.is_stopped():
             pass
 
         # 3. Move back up to start position
-        print("[ StepperV ] Hopefully picked up cargo")
-        print("[ StepperV ] ON")
         self.steps_taken = 0
         print("[ StepperV ] Reset steps taken to 0")
+        print("[ StepperV ] Hopefully picked up cargo")
+        print("[ StepperV ] ON")
+
+
 
         while int(self.steps_taken) < int(self.amount_of_steps):
             GPIO.output(STEP, GPIO.HIGH)
