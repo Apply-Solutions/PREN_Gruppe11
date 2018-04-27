@@ -2,6 +2,7 @@ from StateMachine import StateMachine
 from time import sleep
 import RPi.GPIO as GPIO
 import threading
+import time
 
 DIR = 21   # Direction GPIO Pin
 STEP = 20  # Step GPIO Pin
@@ -29,15 +30,48 @@ class StepperV(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.sm = StateMachine.get_stepperh_machine(self, StepperV._states)
+        self.amount_of_steps = 0
+        self.steps_taken = 0
+        print("[ StepperV ] initialised")
 
     def run(self):
-        print("\nStepperV ON")
-        while not self.is_stopped():
+        # 1. Move down to cargo
+        print("[ StepperV ] Direction set to: CW (downwards)")
+        print("[ StepperV ] Steps to take: "+str(self.amount_of_steps))
+        print("[ StepperV ] ON")
+        while int(self.steps_taken) < int(self.amount_of_steps):
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
+            self.steps_taken += 1
+        print("[ StepperV ] OFF")
+        print("[ StepperV ] Steps taken: "+str(self.steps_taken))
         self.clean_up()
+
+        print("[ StepperV ] Waiting for cargo...")
+
+        # 2. Wait at cargo until state changes from main
+        while self.stepperv_at_cargo:
+            pass
+
+        # 3. Move back up to start position
+        print("[ StepperV ] Hopefully picked up cargo")
+        print("[ StepperV ] ON")
+        self.steps_taken = 0
+        print("[ StepperV ] Reset steps taken to 0")
+
+        while int(self.steps_taken) < int(self.amount_of_steps):
+            GPIO.output(STEP, GPIO.HIGH)
+            sleep(delay)
+            GPIO.output(STEP, GPIO.LOW)
+            sleep(delay)
+            self.steps_taken += 1
+
+        print("[ StepperV ] OFF")
+        print("[ StepperV ] Steps taken: " + str(self.steps_taken))
+        self.clean_up()
+
 
     def calculate_pos(self):
         pass
@@ -48,9 +82,9 @@ class StepperV(threading.Thread):
     @staticmethod
     def set_direction(direction):
         GPIO.output(DIR, direction)
-        print("Direction: "+str(direction))
+        print("[ StepperV ] Direction: "+str(direction))
 
     @staticmethod
     def clean_up():
-        print("\nStepperV OFF")
+        print("[ StepperV ] GPIO cleanup")
         GPIO.cleanup()

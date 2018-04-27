@@ -4,6 +4,7 @@ from StepperV import StepperV
 #from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
 from StateMachine import StateMachine
+import time
 
 _states = ['initialised', 'running', 'stopped']
 
@@ -61,22 +62,24 @@ def add_stepperh_transitions(machine):
 def add_stepperv_transitions(machine):
     machine.add_transition(trigger='start_stepperV',
                            source='initialised',
-                           dest='running_upwards')
+                           dest='running_downwards')
 
-    machine.add_transition(trigger='change_to_upwards',
+    machine.add_transition(trigger='change_to_downwards',
                            source='running_upwards',
                            dest='running_downwards')
-    machine.add_transition(trigger='change_to_downwards',
+    machine.add_transition(trigger='change_to_upwards',
                            source='running_downwards',
                            dest='running_upwards')
 
     machine.add_transition(trigger='stop_stepperV',
-                           source='running_upwards',
+                           source='running_downwards',
                            dest='stopped',
                            after='stepperv_at_position')
+
     machine.add_transition(trigger='stop_stepperV',
-                           source='running_downwards',
+                           source='running_upwards',
                            dest='stopped')
+
 
     machine.add_transition(trigger='send_at_position_signal',
                            source='running_downwards',
@@ -106,14 +109,14 @@ def add_imgproc_transitions(machine):
 
 
 def add_magnet_transitions(machine):
-    machine.add_transitions(target='power_on',
+    machine.add_transition(trigger='power_on',
                             source='initialised',
                             dest='on')
-    machine.add_transitions(target='power_on',
+    machine.add_transition(trigger='power_on',
                             source='off',
                             dest='on')
 
-    machine.add_transitions(target='power_off',
+    machine.add_transition(trigger='power_off',
                             source='on',
                             dest='off')
 
@@ -130,34 +133,39 @@ class MainThread(object):
 # 6. Run until ImageProcessing state changed
 # 7. Wait until StepperV stopped + ImageProcessing stopped
 
-
+# 2. BTServer got signal from client -> start StepperH
 def server_got_signal(steps):
-    print("[ Main Thread ]: server got signal")
-    print("[ Main Thread ]: Get X, "+str(stepperH.get_x()))
+    print("[ MAIN ]: BTServer got signal")
+    print("[ MAIN ]: Get X, "+str(stepperH.get_x()))
     stepperH.set_distance(steps)
+    stepperH.start_stepperH()
     stepperH.start()
 
-
+# 3. StepperH at position
 def stepperh_at_position():
     # TODO: change current position
-    stepperV.current_pos = stepperH.get_y()
+    stepperV.amount_of_steps = stepperH.get_y()
+
+    print("[ MAIN ] Set StepperV amount of steps to take: "+str(stepperH.get_y()))
+
+    stepperV.start_stepperV()
     stepperV.start()
     electroMagnet.power_on()
+    electroMagnet.start()
 
 
 def stepperv_at_position():
-    if stepperV.has_cargo:
-        #imgProcessor.start()
-        pass
-
-    stepperH.resume_forwards()
+    time.sleep(5)
+    stepperV.set_direction(0)
+    stepperV.resume_upwards()
+    # imgProcessor.start()
 
 
 def found_destination():
     stepperH.stop()
 
     # TODO: change current position
-    stepperV.current_pos = stepperH.get_y()
+    stepperV.amount_of_steps = stepperH.get_y()
     stepperV.resume_downwards()
 
 
@@ -182,6 +190,7 @@ if __name__ == '__main__':
         add_btserver_transitions(server.get_sm())
         add_stepperh_transitions(stepperH.get_sm())
         add_stepperv_transitions(stepperV.get_sm())
+        add_magnet_transitions(electroMagnet.get_sm())
         #add_imgproc_transitions(imgProcessor.get_sm())
 
         # Dynamically add methods
