@@ -17,15 +17,18 @@ class ElectroMagnet(threading.Thread):
     def __init__(self):
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
         threading.Thread.__init__(self)
-        self.sm = StateMachine.get_stepperh_machine(self, ElectroMagnet._states)
+        self.sm = StateMachine.get_magnet_machine(self, ElectroMagnet._states)
 
     def run(self):
         GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
-        print("Electromagnet ON")
+        print("[ Electromagnet ] ON")
         while self.is_on():
-            print("Electromagnet still running...")
+            print("[ Electromagnet ] still running...")
             time.sleep(5)
 
     def clean_up(self):
-        print("\nElectromagnet OFF")
+
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
+
+    def get_sm(self):
+        return self.sm
