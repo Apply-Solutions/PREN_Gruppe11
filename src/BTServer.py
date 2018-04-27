@@ -15,7 +15,7 @@ class BluetoothServer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.sm = StateMachine.get_bt_server_machine(self, BluetoothServer._states)
-        print("Bluetooth server started")
+        print("[ BTServer ] Bluetooth server started")
 
     def send_message(self, message):
         self.__client_sock__.send(message)
@@ -38,7 +38,7 @@ class BluetoothServer(threading.Thread):
         # Change state to searching
         self.search()
 
-        print("Listening on port %d" % port)
+        print("[ BTServer ] Listening on port %d" % port)
 
         # Advertise service as available connection
         advertise_service(server_socket, "LaufkatzeT11",
@@ -53,7 +53,7 @@ class BluetoothServer(threading.Thread):
         self.connect()
         self.connected()
 
-        print("Accepted connection from ", client_info)
+        print("[ BTServer ] Accepted connection from ", client_info)
         self.__client_sock__.send("status@" + status + "#")
 
         # Switch state to waiting_for_start_signal
@@ -70,8 +70,8 @@ class BluetoothServer(threading.Thread):
                 self.stop_server()
 
             elif "start-process" in received_data:
-                print("Received start signal from client. Changing state now...")
-                steps = received_data[received_data.find("@") + 1:]
+                print("[ BTServer ] Received start signal from client. Changing state now...")
+                steps = int(received_data[received_data.find("@") + 1:])
                 received_data = ""
                 status = "started"
                 self.start_machine(steps)
