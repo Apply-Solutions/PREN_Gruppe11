@@ -32,7 +32,7 @@ class BluetoothServer(threading.Thread):
         uuid = "00001105-0000-1000-8000-00805f9b34fb"
 
         # Bind socket and start listening on port
-        server_socket.bind(("", port))
+        server_socket.bind(("", 0))
         server_socket.listen(1)
 
         # Change state to searching

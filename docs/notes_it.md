@@ -250,3 +250,14 @@ Run bash script **after login**:
 **THREADPOOL**:
 
 * https://medium.com/@bfortuner/python-multithreading-vs-multiprocessing-73072ce5600b
+
+## Stepper
+
+### MM to Steps
+
+```python
+def set_steps_cm(self, distanceInMili):
+	y = distanceInMili/float(10)
+	steps = round(-100*(math.sqrt(-1000*(y - 2215.269))-1480), 0)
+	return steps
+```        
