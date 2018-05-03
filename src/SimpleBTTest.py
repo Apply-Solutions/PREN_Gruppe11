@@ -3,7 +3,7 @@ from BTServer import BluetoothServer
 
 def add_btserver_transitions(machine):
     machine.add_transition(trigger='search',
-                           source='initialised',
+                           source='initialized',
                            dest='searching',
                            after='test')
     machine.add_transition(trigger='connect',

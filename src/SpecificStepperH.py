@@ -22,7 +22,7 @@ delay = .0005
 
 
 class StepperH(threading.Thread):
-    _states = ['initialised', 'running_forwards', 'running_backwards', 'stopped']
+    _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
     def __init__(self):

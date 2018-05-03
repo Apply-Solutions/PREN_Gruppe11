@@ -1,6 +1,7 @@
 import grp
 import subprocess
 
+
 def ensure_gpiogroup():
     try:
         grp.getgrnam('gpio')
@@ -12,6 +13,7 @@ def ensure_gpiogroup():
         #   spi
         #   i2c
         add_udev_rules()
+
 
 def add_udev_rules():
     with open('/etc/udev/rules.d/99-gpio.rules','w') as f:

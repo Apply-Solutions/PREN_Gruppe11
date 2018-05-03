@@ -11,34 +11,34 @@ CW = 1  # Clockwise Rotation
 CCW = 0  # Counterclockwise Rotation
 SPR = 1000  # Steps per Revolution (360 / 7.5)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR, GPIO.OUT)
-GPIO.setup(STEP, GPIO.OUT)
-
-# set direction forward (clockwise)
-GPIO.output(DIR, CCW)
-
 step_count = SPR
 delay = .0005
 
 
 class StepperH(threading.Thread, Observable):
-    _states = ['initialised', 'running_forwards', 'running_backwards', 'stopped']
+    _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
     def __init__(self):
         print("[ StepperH ] initialising")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(DIR, GPIO.OUT)
+        GPIO.setup(STEP, GPIO.OUT)
+        GPIO.output(DIR, CCW)
+
         threading.Thread.__init__(self)
         Observable.__init__(self)
         self.amount_of_steps = 0
         self.steps_taken = 0
         self.delay = 0.05
         self.count = 5
+        self.running = True # to stop stepper from main thread in the end
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
         print("[ StepperH ] Set delay between steps to " + str(self.delay) + "s")
         print("[ StepperH ] initialized")
 
     def run(self):
+        # 1. Run Stepper until preset amount of steps are taken
         print("[ StepperH ] ON")
         print("[ StepperH ] Steps taken: "+str(self.steps_taken))
         print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
@@ -52,16 +52,26 @@ class StepperH(threading.Thread, Observable):
 
         self.stop_stepperH()
 
+        # 2. Wait until state change
         while self.is_stopped():
             pass
 
+        # 3. Resume running forwards until stopped by main thread when square found
+        print("[ StepperH ] Resume forwards")
         self.steps_taken = 0
-        print("[ StepperH ] Steps taken set back to 0. TODO: calculate rest of steps for amount of steps!!")
+        # TODO: calculate rest of steps for amount of steps!!
+        print("[ StepperH ] Steps taken set back to 0")
 
-        while self.steps_taken < self.amount_of_steps:
+        print("[ StepperH ] ON")
+        while self.running:
             self.do_steps()
             print("[ StepperH ] Steps taken: "+str(self.steps_taken)+", Steps to take: "+str(self.amount_of_steps))
-        self.clean_up()
+        print("[ StepperH ] OFF")
+        print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
+
+        # 4. Waiting for cargo to be dropped and then resume forwards until collision!
+
+        # self.clean_up()
 
     def get_sm(self):
         return self.sm

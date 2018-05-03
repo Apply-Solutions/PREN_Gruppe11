@@ -7,12 +7,12 @@ from StateMachine import StateMachine
 from Observer import Observer
 import time
 
-_states = ['initialised', 'running', 'stopped']
+_states = ['initialized', 'running', 'stopped']
 server = 0
 
 def add_mainthread_transitions(machine):
     machine.add_transition(trigger='start',
-                           source='initialised',
+                           source='initialized',
                            dest='running')
     machine.add_transition(trigger='stop',
                            source='running',
@@ -21,7 +21,7 @@ def add_mainthread_transitions(machine):
 
 def add_btserver_transitions(machine):
     machine.add_transition(trigger='search',
-                           source='initialised',
+                           source='initialized',
                            dest='searching')
     machine.add_transition(trigger='connect',
                            source='searching',
@@ -43,7 +43,7 @@ def add_btserver_transitions(machine):
 
 def add_stepperh_transitions(machine):
     machine.add_transition(trigger='start_stepperH',
-                           source='initialised',
+                           source='initialized',
                            dest='running_forwards')
 
     machine.add_transition(trigger='change_to_forwards',
@@ -57,12 +57,13 @@ def add_stepperh_transitions(machine):
 
     machine.add_transition(trigger='resume_forwards',
                            source='stopped',
-                           dest='running_forwards')
+                           dest='running_forwards',
+                           after='running_forwards')
 
 
 def add_stepperv_transitions(machine):
     machine.add_transition(trigger='start_stepperV',
-                           source='initialised',
+                           source='initialized',
                            dest='running_downwards')
 
     machine.add_transition(trigger='change_to_downwards',
@@ -98,7 +99,7 @@ def add_stepperv_transitions(machine):
 
 def add_imgproc_transitions(machine):
     machine.add_transition(trigger='start_imgproc',
-                           source='initialising',
+                           source='initialized',
                            dest='processing')
     machine.add_transition(trigger='start_imgproc',
                            source='stopped',
@@ -112,7 +113,7 @@ def add_imgproc_transitions(machine):
 
 def add_magnet_transitions(machine):
     machine.add_transition(trigger='power_on',
-                            source='initialised',
+                            source='initialized',
                             dest='on')
     machine.add_transition(trigger='power_on',
                             source='off',
@@ -177,7 +178,7 @@ def stepperv_at_position():
     time.sleep(5)
 
     print("[ MAIN ] Starting Image Processor...")
-    imgProcessor.start()
+    imgProcessor.start_thread()
 
     print("[ MAIN ] Image Processor start")
     stepperV.set_direction(0)
@@ -190,14 +191,20 @@ def stepperv_at_position():
 
 
 def running_forwards():
-    pass
+    print("[ MAIN ] running_forwards()")
 
 
 def found_destination():
+    print("[ MAIN ] fount_destination()")
+    print("[ MAIN ] Attempting to stop Image Processor")
+    imgProcessor.stop()
+    print("[ MAIN ] Attempting to stop StepperH")
+    stepperH.running = False
     stepperH.stop()
 
     # TODO: change current position
     stepperV.amount_of_steps = stepperH.get_y()
+    print("[ MAIN ] Resuming StepperV")
     stepperV.resume_downwards()
 
 
@@ -212,6 +219,7 @@ if __name__ == '__main__':
         # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
         self_sm = StateMachine.get_main_machine(mainthread, _states)
         server = BluetoothServer()
+        StepperH.clean_up()
         stepperH = StepperH()
         stepperV = StepperV()
         imgProcessor = ImageProcessor()
@@ -243,5 +251,5 @@ if __name__ == '__main__':
         server.stop()
         stepperH.stop()
         stepperV.stop()
-        #imgProcessor.stop()
+        imgProcessor.stop()
         electroMagnet.stop()
