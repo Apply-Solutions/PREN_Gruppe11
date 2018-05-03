@@ -1,7 +1,7 @@
 from BTServer import BluetoothServer
 from StepperH import StepperH
 from StepperV import StepperV
-#from ImageProcessor import ImageProcessor
+from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
 from StateMachine import StateMachine
 from Observer import Observer
@@ -90,6 +90,7 @@ def add_stepperv_transitions(machine):
     machine.add_transition(trigger='resume_upwards',
                            source='stopped',
                            dest='running_upwards')
+
     machine.add_transition(trigger='resume_downwards',
                            source='stopped',
                            dest='running_downwards')
@@ -145,6 +146,7 @@ class MainThread(Observer):
 # 6. Run until ImageProcessing state changed
 # 7. Wait until StepperV stopped + ImageProcessing stopped
 
+
 # 2. BTServer got signal from client -> start StepperH
 def server_got_signal(steps):
     print("[ MAIN ]: BTServer got signal")
@@ -152,10 +154,13 @@ def server_got_signal(steps):
     stepperH.set_distance(steps)
     stepperH.start_stepperH()
     stepperH.start()
+    print("[ MAIN ]: StepperH started")
+
 
 # 3. StepperH at position
 def stepperh_at_position():
     # TODO: change current position
+    print("[ MAIN ] stepperh_at_position()")
     stepperV.amount_of_steps = stepperH.get_y()
 
     print("[ MAIN ] Set StepperV amount of steps to take: "+str(stepperH.get_y()))
@@ -166,11 +171,26 @@ def stepperh_at_position():
     electroMagnet.start()
 
 
+# 4. Get cargo, StepperV move up, Start ImageProcessing, -> Start StepperH
 def stepperv_at_position():
+    print("[ MAIN ] stepperv_at_position()")
     time.sleep(5)
+
+    print("[ MAIN ] Starting Image Processor...")
+    imgProcessor.start()
+
+    print("[ MAIN ] Image Processor start")
     stepperV.set_direction(0)
+
     stepperV.resume_upwards()
-    # imgProcessor.start()
+    print("[ MAIN ] StepperV resume upwards")
+    time.sleep(3)
+    stepperH.resume_forwards()
+    print("[ MAIN ] StepperH resume forwards")
+
+
+def running_forwards():
+    pass
 
 
 def found_destination():
@@ -194,7 +214,7 @@ if __name__ == '__main__':
         server = BluetoothServer()
         stepperH = StepperH()
         stepperV = StepperV()
-        #imgProcessor = ImageProcessor()
+        imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
 
         stepperH.register(mainthread)
@@ -205,14 +225,14 @@ if __name__ == '__main__':
         add_stepperh_transitions(stepperH.get_sm())
         add_stepperv_transitions(stepperV.get_sm())
         add_magnet_transitions(electroMagnet.get_sm())
-        #add_imgproc_transitions(imgProcessor.get_sm())
+        add_imgproc_transitions(imgProcessor.get_sm())
 
         # Dynamically add methods
         server.server_got_signal = server_got_signal
         stepperH.stepperh_at_position = stepperh_at_position
         stepperV.stepperv_at_position = stepperv_at_position
         stepperV.cargo_at_bay = cargo_at_bay
-        #imgProcessor.found_destination = found_destination
+        imgProcessor.found_destination = found_destination
 
         # 1. BTServer starten
         server.start()

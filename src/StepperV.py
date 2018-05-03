@@ -59,8 +59,6 @@ class StepperV(threading.Thread):
         print("[ StepperV ] Hopefully picked up cargo")
         print("[ StepperV ] ON")
 
-
-
         while int(self.steps_taken) < int(self.amount_of_steps):
             GPIO.output(STEP, GPIO.HIGH)
             sleep(delay)
@@ -70,8 +68,8 @@ class StepperV(threading.Thread):
 
         print("[ StepperV ] OFF")
         print("[ StepperV ] Steps taken: " + str(self.steps_taken))
-        self.clean_up()
 
+        #self.clean_up()
 
     def calculate_pos(self):
         pass

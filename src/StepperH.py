@@ -55,9 +55,11 @@ class StepperH(threading.Thread, Observable):
         while self.is_stopped():
             pass
 
+        self.steps_taken = 0
+        print("[ StepperH ] Steps taken set back to 0. TODO: calculate rest of steps for amount of steps!!")
+
         while self.steps_taken < self.amount_of_steps:
             self.do_steps()
-            print("hello")
             print("[ StepperH ] Steps taken: "+str(self.steps_taken)+", Steps to take: "+str(self.amount_of_steps))
         self.clean_up()
 
