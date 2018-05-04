@@ -40,6 +40,9 @@ class ImageProcessor:
         Thread(target=self.check_if_square, args=()).start()
         return self
 
+    def stop(self):
+        self.is_processing = False;
+
     def get_state(self):
         return self.is_where_found
 
