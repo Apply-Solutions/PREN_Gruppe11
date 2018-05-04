@@ -13,7 +13,7 @@ class ImageProcessor:
 
     def __init__(self):
         resolution = (320, 240)
-        framerate = 32
+        framerate = 10
 
         self.camera = picamera.PiCamera()
         self.camera.resolution = resolution
@@ -64,9 +64,8 @@ class ImageProcessor:
             if len(list_of_squares) == 0:
                 self.is_where_found = False
             else:
-                print ("Square found!")
+                print("[ ImageProcessor ] Square found")
                 # calculate center
-                print ("Calculate center!")
                 x_list = []
                 y_list = []
 
@@ -78,7 +77,7 @@ class ImageProcessor:
                 self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
                 self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
-                print("[ ImageProcessor ] Square found")
+                print("[ ImageProcessor ] Set state.")
                 self.is_where_found = True
                 self.stop_imgproc()
                 print("[ ImageProcessor ] Processing stopped")
