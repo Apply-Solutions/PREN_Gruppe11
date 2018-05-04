@@ -44,8 +44,7 @@ if __name__ == '__main__':
         while stepper.is_running_backwards or stepper.is_running_forwards:
             print("running")
             time.sleep(2)
-
-	    print("Stop")
+        print("Stop")
     except KeyboardInterrupt:
         running = False
         stepper.stop()

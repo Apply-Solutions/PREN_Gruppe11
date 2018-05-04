@@ -57,8 +57,7 @@ def add_stepperh_transitions(machine):
 
     machine.add_transition(trigger='resume_forwards',
                            source='stopped',
-                           dest='running_forwards',
-                           after='running_forwards')
+                           dest='running_forwards')
 
 
 def add_stepperv_transitions(machine):
@@ -131,9 +130,9 @@ class MainThread(Observer):
         self.message_number = 0
 
     def update(self, message):
-        if(self.message_number > 10):
+        if self.message_number > 10:
             server.send_message(server.getDatetime() + "@[ position ];" + message + "#")
-        if(self.message_number <= 10):
+        if self.message_number <= 10:
             self.message_number += 1
         else:
             self.message_number = 0
@@ -185,8 +184,10 @@ def stepperv_at_position():
 
     stepperV.resume_upwards()
     print("[ MAIN ] StepperV resume upwards")
-    time.sleep(3)
+    time.sleep(10)
     stepperH.resume_forwards()
+    stepperH2 = StepperH()
+    stepperH2.start()
     print("[ MAIN ] StepperH resume forwards")
 
 
@@ -200,7 +201,7 @@ def found_destination():
     imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
     stepperH.running = False
-    stepperH.stop()
+    #stepperH.stop()
 
     # TODO: change current position
     stepperV.amount_of_steps = stepperH.get_y()

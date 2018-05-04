@@ -2,34 +2,28 @@ from StateMachine import StateMachine
 from time import sleep
 import RPi.GPIO as GPIO
 import threading
-import time
 
 DIR = 21   # Direction GPIO Pin
 STEP = 20  # Step GPIO Pin
 CW = 1     # Clockwise Rotation
 CCW = 0    # Counterclockwise Rotation
 SPR = 1000   # Steps per Revolution (360 / 7.5)
-
-step_count = SPR
-delay = .0005  # in seconds (.005 = 5ms)
+delay = 0.0005  # in seconds (.005 = 5ms)
 
 
 class StepperV(threading.Thread):
     _states = ['initialized', 'running_upwards', 'running_downwards', 'at_destination_pos', 'stopped']
 
-    current_pos = 0
-    has_cargo = False
-
     def __init__(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(DIR, GPIO.OUT)
-        GPIO.setup(STEP, GPIO.OUT)
-        GPIO.output(DIR, CW)
-
         threading.Thread.__init__(self)
-        self.sm = StateMachine.get_stepperv_machine(self, StepperV._states)
         self.amount_of_steps = 0
         self.steps_taken = 0
+        self.sm = StateMachine.get_stepperv_machine(self, StepperV._states)
+        self.delay = 0.0005
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.OUT)
+        GPIO.setup(20, GPIO.OUT)
+        GPIO.output(21, CW)
         print("[ StepperV ] initialized")
 
     def run(self):
@@ -39,14 +33,14 @@ class StepperV(threading.Thread):
         print("[ StepperV ] ON")
         while int(self.steps_taken) < int(self.amount_of_steps):
             GPIO.output(STEP, GPIO.HIGH)
-            sleep(delay)
+            sleep(self.delay)
             GPIO.output(STEP, GPIO.LOW)
-            sleep(delay)
+            sleep(self.delay)
             self.steps_taken += 1
-        self.stop_stepperV()
         print("[ StepperV ] OFF")
-        print("[ StepperV ] Steps taken: "+str(self.steps_taken))
+        print("[ StepperV ] Steps taken: " + str(self.steps_taken))
         print("[ StepperV ] Waiting for cargo...")
+        self.stop_stepperV()
 
         # 2. Wait at cargo until state changes from main (stopped)
         while self.is_stopped():
@@ -84,7 +78,7 @@ class StepperV(threading.Thread):
             self.steps_taken += 1
 
         print("[ StepperV ] OFF")
-        self.clean_up()
+        #self.clean_up()
 
     def calculate_pos(self):
         pass

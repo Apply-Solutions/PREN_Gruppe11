@@ -12,7 +12,7 @@ CCW = 0  # Counterclockwise Rotation
 SPR = 1000  # Steps per Revolution (360 / 7.5)
 
 step_count = SPR
-delay = .0005
+delay = 0.0005
 
 
 class StepperH(threading.Thread, Observable):
@@ -29,49 +29,46 @@ class StepperH(threading.Thread, Observable):
         threading.Thread.__init__(self)
         Observable.__init__(self)
         self.amount_of_steps = 0
-        self.steps_taken = 0
+        self.steps_taken = 1
         self.delay = 0.05
         self.count = 5
         self.running = True # to stop stepper from main thread in the end
+        self._stop_event = threading.Event()
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
         print("[ StepperH ] Set delay between steps to " + str(self.delay) + "s")
         print("[ StepperH ] initialized")
 
     def run(self):
-        # 1. Run Stepper until preset amount of steps are taken
-        print("[ StepperH ] ON")
-        print("[ StepperH ] Steps taken: "+str(self.steps_taken))
-        print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        while self.steps_taken < self.amount_of_steps:
-            self.do_steps()
+        if self.amount_of_steps != 0:
+            # 1. Run Stepper until preset amount of steps are taken
+            print("[ StepperH ] ON")
+            print("[ StepperH ] Steps taken: " + str(self.steps_taken))
+            print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        print("[ StepperH ] OFF")
-        print("[ StepperH ] Stepper took "+str(self.steps_taken)+" before stopping")
-        print("[ StepperH ] Waiting for state change")
+            while self.steps_taken < self.amount_of_steps:
+                self.do_steps()
 
-        self.stop_stepperH()
+            print("[ StepperH ] OFF")
+            print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
+            print("[ StepperH ] Waiting for state change")
+            self.stop_stepperH()
+            self._stop_event.set()
 
-        # 2. Wait until state change
-        while self.is_stopped():
-            pass
+        elif self.amount_of_steps == 0:
+            # 3. Resume forwards until stopped by main thread when square found
+            print("[ StepperH ] Resume forwards")
+            self.steps_taken = 0
+            # TODO: calculate rest of steps for amount of steps!!
+            print("[ StepperH ] Steps taken set back to 0")
 
-        # 3. Resume running forwards until stopped by main thread when square found
-        print("[ StepperH ] Resume forwards")
-        self.steps_taken = 0
-        # TODO: calculate rest of steps for amount of steps!!
-        print("[ StepperH ] Steps taken set back to 0")
+            print("[ StepperH ] ON")
+            while self.running:
+                self.do_steps()
 
-        print("[ StepperH ] ON")
-        while self.running:
-            self.do_steps()
-            print("[ StepperH ] Steps taken: "+str(self.steps_taken)+", Steps to take: "+str(self.amount_of_steps))
-        print("[ StepperH ] OFF")
-        print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
-
-        # 4. Waiting for cargo to be dropped and then resume forwards until collision!
-
-        # self.clean_up()
+            print("[ StepperH ] OFF")
+            print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
+            self._stop_event.set()
 
     def get_sm(self):
         return self.sm
@@ -102,7 +99,7 @@ class StepperH(threading.Thread, Observable):
 
     def get_y(self):
         # To set to actual y-steps
-        return 200
+        return 500
 
     def set_distance(self, steps):
         self.amount_of_steps = int(steps)
