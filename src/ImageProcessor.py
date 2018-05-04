@@ -18,11 +18,13 @@ class ImageProcessor:
         self.camera = picamera.PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
-        self.camera.exposure_mode = 'sports'
 
         self.rawCapture = PiRGBArray(self.camera, resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
                                                      format="bgr", use_video_port=True)
+
+        self.frame = None
+
         self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
 
         self.is_where_found = False
@@ -59,12 +61,13 @@ class ImageProcessor:
                 self.camera.close()
                 return
 
-            list_of_squares = self.find_squares(f.array)
+            self.frame = f.array
+            list_of_squares = self.find_squares(self.frame)
             self.rawCapture.truncate(0)
 
             # save image to debug
-            cv2.drawContours(f.array, list_of_squares, -1, (0, 255, 0), 3)
-            cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', f.array)
+            cv2.drawContours(self.frame, list_of_squares, -1, (0, 255, 0), 3)
+            cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', self.frame)
             count = count + 1
 
             print("[ ImageProcessor ] Lenght: len(list_of_squares) ")
