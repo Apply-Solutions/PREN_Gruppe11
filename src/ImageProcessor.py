@@ -63,7 +63,9 @@ class ImageProcessor:
             if len(list_of_squares) == 0:
                 self.is_where_found = False
             else:
+                print ("Square found!")
                 # calculate center
+                print ("Calculate center!")
                 x_list = []
                 y_list = []
 
