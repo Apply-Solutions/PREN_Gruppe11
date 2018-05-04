@@ -20,10 +20,6 @@ class ImageProcessor:
         self.camera.framerate = framerate
 
         self.rawCapture = PiRGBArray(self.camera, resolution)
-        #self.stream = self.camera.capture_continuous(self.rawCapture,
-        #                                             format="bgr", use_video_port=True)
-
-        #self.frame = None
 
         self.is_processing = True;
 
@@ -58,23 +54,13 @@ class ImageProcessor:
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
         count = 1
-        #for f in self.stream:
+
         with PiRGBArray(self.camera) as output:
             while self.is_processing:
-
-                # if not self.is_processing():
-                #     self.stream.close()
-                #     self.rawCapture.close()
-                #     self.camera.close()
-                #     return
-                #
-                # self.frame = f.array
 
                 self.camera.capture(output, 'rgb', use_video_port=True)
                 frame = output.array
                 list_of_squares = self.find_squares(frame)
-                #self.rawCapture.truncate(0)
-
 
                 # save image to debug
                 cv2.drawContours(frame, list_of_squares, -1, (0, 255, 0), 3)
