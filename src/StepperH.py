@@ -53,7 +53,7 @@ class StepperH(threading.Thread, Observable):
             print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
             print("[ StepperH ] Waiting for state change")
             self.stop_stepperH()
-            self._stop_event.set()
+            self = None
 
         elif self.amount_of_steps == 0:
             # 3. Resume forwards until stopped by main thread when square found
@@ -99,7 +99,7 @@ class StepperH(threading.Thread, Observable):
 
     def get_y(self):
         # To set to actual y-steps
-        return 500
+        return 800
 
     def set_distance(self, steps):
         self.amount_of_steps = int(steps)

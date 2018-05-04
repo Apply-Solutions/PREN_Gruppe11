@@ -161,32 +161,25 @@ def server_got_signal(steps):
 def stepperh_at_position():
     # TODO: change current position
     print("[ MAIN ] stepperh_at_position()")
-    stepperV.amount_of_steps = stepperH.get_y()
-
     print("[ MAIN ] Set StepperV amount of steps to take: "+str(stepperH.get_y()))
 
     stepperV.start_stepperV()
-    stepperV.start()
-    electroMagnet.power_on()
-    electroMagnet.start()
+    stepperV.on(int(1), int(stepperH.get_y()))
+    stepperv_at_position()
+
+    # electroMagnet.power_on()
+    # electroMagnet.start()
 
 
 # 4. Get cargo, StepperV move up, Start ImageProcessing, -> Start StepperH
 def stepperv_at_position():
     print("[ MAIN ] stepperv_at_position()")
-    time.sleep(5)
+    time.sleep(2)
+
+    stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
     imgProcessor.start_thread()
-
-    print("[ MAIN ] Image Processor start")
-    stepperV.set_direction(0)
-
-    stepperV.resume_upwards()
-    print("[ MAIN ] StepperV resume upwards")
-    time.sleep(10)
-    stepperH.resume_forwards()
-    stepperH2 = StepperH()
     stepperH2.start()
     print("[ MAIN ] StepperH resume forwards")
 
@@ -201,7 +194,6 @@ def found_destination():
     imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
     stepperH.running = False
-    #stepperH.stop()
 
     # TODO: change current position
     stepperV.amount_of_steps = stepperH.get_y()
@@ -222,6 +214,8 @@ if __name__ == '__main__':
         server = BluetoothServer()
         StepperH.clean_up()
         stepperH = StepperH()
+        stepperH.daemon = True
+        stepperH2 = StepperH()
         stepperV = StepperV()
         imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
@@ -251,6 +245,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         server.stop()
         stepperH.stop()
-        stepperV.stop()
         imgProcessor.stop()
         electroMagnet.stop()
