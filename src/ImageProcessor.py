@@ -56,7 +56,7 @@ class ImageProcessor:
         # keep looping infinitely until the thread is stopped
         count = 1
         #for f in self.stream:
-        with PiRGBArray(self._camera) as output:
+        with PiRGBArray(self.camera) as output:
             while self.is_processing:
 
                 # if not self.is_processing():
