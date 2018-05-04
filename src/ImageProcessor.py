@@ -81,6 +81,7 @@ class ImageProcessor:
                 cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', frame)
                 count = count + 1
 
+                output.truncate(0)
                 print("[ ImageProcessor ] Length: len(list_of_squares) ")
                 if len(list_of_squares) == 0:
                     self.is_where_found = False
