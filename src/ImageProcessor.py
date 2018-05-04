@@ -50,6 +50,7 @@ class ImageProcessor:
 
     def check_if_square(self):
         # keep looping infinitely until the thread is stopped
+        count = 1
         for f in self.stream:
 
             if not self.is_processing():
@@ -61,6 +62,12 @@ class ImageProcessor:
             list_of_squares = self.find_squares(f.array)
             self.rawCapture.truncate(0)
 
+            # save image to debug
+            cv2.drawContours(f.array, list_of_squares, -1, (0, 255, 0), 3)
+            cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', f.array)
+            count = count + 1
+
+            print("[ ImageProcessor ] Lenght: len(list_of_squares) ")
             if len(list_of_squares) == 0:
                 self.is_where_found = False
             else:
