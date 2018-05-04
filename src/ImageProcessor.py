@@ -68,13 +68,14 @@ class ImageProcessor:
                 # self.frame = f.array
 
                 self.camera.capture(output, 'rgb', use_video_port=True)
-                list_of_squares = self.find_squares(output)
+                frame = output.array
+                list_of_squares = self.find_squares(frame)
                 #self.rawCapture.truncate(0)
 
 
                 # save image to debug
-                cv2.drawContours(output, list_of_squares, -1, (0, 255, 0), 3)
-                cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', output)
+                cv2.drawContours(frame, list_of_squares, -1, (0, 255, 0), 3)
+                cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', frame)
                 count = count + 1
 
                 print("[ ImageProcessor ] Length: len(list_of_squares) ")
