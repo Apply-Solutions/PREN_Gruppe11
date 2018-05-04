@@ -9,7 +9,7 @@ server_socket = BluetoothSocket(RFCOMM)
 
 
 class BluetoothServer(threading.Thread):
-    _states = ['initialised', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
+    _states = ['initialized', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
     __client_sock__ = ''
 
     def __init__(self):

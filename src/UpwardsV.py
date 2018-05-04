@@ -5,7 +5,7 @@ import time
 
 def add_stepperv_transitions(machine):
     machine.add_transition(trigger='prepare',
-                           source='initialised',
+                           source='initialized',
                            dest='running_upwards')
 
     machine.add_transition(trigger='change_to_upwards',

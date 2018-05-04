@@ -10,32 +10,30 @@ CW = 1     # Clockwise Rotation
 CCW = 0    # Counterclockwise Rotation
 SPR = 1000   # Steps per Revolution (360 / 7.5)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR, GPIO.OUT)
-GPIO.setup(STEP, GPIO.OUT)
-
-# set direction downward (clockwise)
-GPIO.output(DIR, CW)
-
 step_count = SPR
 delay = .0005  # in seconds (.005 = 5ms)
 
 
 class StepperV(threading.Thread):
-    _states = ['initialised', 'running_upwards', 'running_downwards', 'at_destination_pos', 'stopped']
+    _states = ['initialized', 'running_upwards', 'running_downwards', 'at_destination_pos', 'stopped']
 
     current_pos = 0
     has_cargo = False
 
     def __init__(self):
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(DIR, GPIO.OUT)
+        GPIO.setup(STEP, GPIO.OUT)
+        GPIO.output(DIR, CW)
+
         threading.Thread.__init__(self)
         self.sm = StateMachine.get_stepperv_machine(self, StepperV._states)
         self.amount_of_steps = 0
         self.steps_taken = 0
-        print("[ StepperV ] initialised")
+        print("[ StepperV ] initialized")
 
     def run(self):
-        # 1. Move down to cargo
+        # 1. Move down to cargo (running downwards)
         print("[ StepperV ] Direction set to: CW (downwards)")
         print("[ StepperV ] Steps to take: "+str(self.amount_of_steps))
         print("[ StepperV ] ON")
@@ -45,11 +43,12 @@ class StepperV(threading.Thread):
             GPIO.output(STEP, GPIO.LOW)
             sleep(delay)
             self.steps_taken += 1
+        self.stop_stepperV()
         print("[ StepperV ] OFF")
         print("[ StepperV ] Steps taken: "+str(self.steps_taken))
         print("[ StepperV ] Waiting for cargo...")
 
-        # 2. Wait at cargo until state changes from main
+        # 2. Wait at cargo until state changes from main (stopped)
         while self.is_stopped():
             pass
 
@@ -58,8 +57,6 @@ class StepperV(threading.Thread):
         print("[ StepperV ] Reset steps taken to 0")
         print("[ StepperV ] Hopefully picked up cargo")
         print("[ StepperV ] ON")
-
-
 
         while int(self.steps_taken) < int(self.amount_of_steps):
             GPIO.output(STEP, GPIO.HIGH)
@@ -70,8 +67,24 @@ class StepperV(threading.Thread):
 
         print("[ StepperV ] OFF")
         print("[ StepperV ] Steps taken: " + str(self.steps_taken))
-        self.clean_up()
 
+        while self.is_stopped():
+            pass
+
+        print("[ StepperV ] Resetting steps taken to 0")
+        self.steps_taken = 0
+
+        print("[ StepperV ] ON")
+        print("[ StepperV ] Steps to take: " + str(self.amount_of_steps))
+        while int(self.steps_taken) < int(self.amount_of_steps):
+            GPIO.output(STEP, GPIO.HIGH)
+            sleep(delay)
+            GPIO.output(STEP, GPIO.LOW)
+            sleep(delay)
+            self.steps_taken += 1
+
+        print("[ StepperV ] OFF")
+        self.clean_up()
 
     def calculate_pos(self):
         pass

@@ -8,7 +8,7 @@ from StateMachine import StateMachine
 
 
 class ImageProcessor:
-    _states = ['initialised', 'processing', 'found_square']
+    _states = ['initialized', 'processing', 'found_square']
     delay_in_sec = 0.1
 
     def __init__(self):
@@ -28,9 +28,10 @@ class ImageProcessor:
         self.is_where_found = False
         self.center_x = 0
         self.center_y = 0
+        print("[ ImageProcessor ] initialized")
 
     def start_thread(self):
-        self.start()
+        self.start_imgproc()
         # start the thread to read frames from the video stream
         Thread(target=self.check_if_square, args=()).start()
         return self
@@ -77,7 +78,10 @@ class ImageProcessor:
                 self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
                 self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
+                print("[ ImageProcessor ] Square found")
                 self.is_where_found = True
+                self.stop_imgproc()
+                print("[ ImageProcessor ] Processing stopped")
 
             time.sleep(self.delay_in_sec)
 
