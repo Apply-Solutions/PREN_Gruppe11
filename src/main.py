@@ -42,7 +42,7 @@ class MainThread(Observer):
 # 7. Go to finish line!
 # -------------------------------------------------------------------------------------
 
-# Step 1 at bottom of file
+# Step 0 and 1 at bottom of file
 
 # ------------------------------------------------------------------
 # 2. BTServer got start signal
