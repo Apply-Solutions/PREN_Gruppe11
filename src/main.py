@@ -42,54 +42,7 @@ class MainThread(Observer):
 # 7. Go to finish line!
 # -------------------------------------------------------------------------------------
 
-if __name__ == '__main__':
-    try:
-        # ------------------------------------------------------------------
-        # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet)
-        # ------------------------------------------------------------------
-        mainthread = MainThread()
-        self_sm = StateMachine.get_main_machine(mainthread, _states)
-        server = BluetoothServer()
-
-        stepperH = StepperH()
-        stepperV = StepperV()
-        imgProcessor = ImageProcessor()
-        electroMagnet = ElectroMagnet()
-        collisionButton = CollisionButton()
-
-        # Register self to Observer
-        print("[ MAIN ] Registering StepperH to Observer")
-        stepperH.register(mainthread)
-
-        # Add transitions
-        transitions.add_mainthread_transitions(self_sm)
-        transitions.add_btserver_transitions(server.get_sm())
-        transitions.add_stepperh_transitions(stepperH.get_sm())
-        transitions.add_stepperv_transitions(stepperV.get_sm())
-        transitions.add_magnet_transitions(electroMagnet.get_sm())
-        transitions.add_imgproc_transitions(imgProcessor.get_sm())
-
-        # Dynamically add methods
-        server.server_got_signal = server_got_signal
-        stepperH.stepperh_at_position = stepperh_at_position
-        stepperV.stepperv_at_position = stepperv_at_position
-        imgProcessor.found_destination = found_destination
-
-        # ------------------------------------------------------------------
-        # 1. Start BTServer
-        # ------------------------------------------------------------------
-        server.start()
-        # -> Next step at method 2. server_got_signal
-
-        while mainthread.is_running():
-            pass
-    except KeyboardInterrupt:
-        print("[ MAIN ] Switching off program!")
-        imgProcessor.stop_imgproc()
-        electroMagnet.off()
-        stepperH.stop_running()
-        mainthread.stop_running()
-
+# Step 1 at bottom of file
 
 # ------------------------------------------------------------------
 # 2. BTServer got start signal
@@ -174,3 +127,52 @@ def found_destination():
     print("[ MAIN ] Average skill level: 1'000'000!")
     print("[ MAIN ] Final costs for development: CHF 500.-")
     print("[ MAIN ] ------------------------------------------------------------------------------")
+
+
+if __name__ == '__main__':
+    try:
+        # ------------------------------------------------------------------
+        # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet)
+        # ------------------------------------------------------------------
+        mainthread = MainThread()
+        self_sm = StateMachine.get_main_machine(mainthread, _states)
+        server = BluetoothServer()
+
+        stepperH = StepperH()
+        stepperV = StepperV()
+        imgProcessor = ImageProcessor()
+        electroMagnet = ElectroMagnet()
+        collisionButton = CollisionButton()
+
+        # Register self to Observer
+        print("[ MAIN ] Registering StepperH to Observer")
+        stepperH.register(mainthread)
+
+        # Add transitions
+        transitions.add_mainthread_transitions(self_sm)
+        transitions.add_btserver_transitions(server.get_sm())
+        transitions.add_stepperh_transitions(stepperH.get_sm())
+        transitions.add_stepperv_transitions(stepperV.get_sm())
+        transitions.add_magnet_transitions(electroMagnet.get_sm())
+        transitions.add_imgproc_transitions(imgProcessor.get_sm())
+
+        # Dynamically add methods
+        server.server_got_signal = server_got_signal
+        stepperH.stepperh_at_position = stepperh_at_position
+        stepperV.stepperv_at_position = stepperv_at_position
+        imgProcessor.found_destination = found_destination
+
+        # ------------------------------------------------------------------
+        # 1. Start BTServer
+        # ------------------------------------------------------------------
+        server.start()
+        # -> Next step at method 2. server_got_signal
+
+        while mainthread.is_running():
+            pass
+    except KeyboardInterrupt:
+        print("[ MAIN ] Switching off program!")
+        imgProcessor.stop_imgproc()
+        electroMagnet.off()
+        stepperH.stop_running()
+        mainthread.stop_running()
