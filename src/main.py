@@ -3,6 +3,7 @@ from StepperH import StepperH
 from StepperV import StepperV
 from ImageProcessor import ImageProcessor
 from ElectroMagnet import ElectroMagnet
+from CollisionButton import CollisionButton
 from StateMachine import StateMachine
 from Observer import Observer
 import time
@@ -15,7 +16,7 @@ def add_mainthread_transitions(machine):
     machine.add_transition(trigger='start',
                            source='initialized',
                            dest='running')
-    machine.add_transition(trigger='stop',
+    machine.add_transition(trigger='stop_running',
                            source='running',
                            dest='stopped')
 
@@ -138,6 +139,9 @@ class MainThread(Observer):
         else:
             self.message_number = 0
 
+    def stop_stepper_on_collision(self):
+        stepperH.stop_running()
+
 # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
 # 1. BTServer starten
 # 2. BTServer Signal erhalten -> StepperH starten
@@ -188,11 +192,12 @@ def stepperv_at_position():
     stepperH.run_until_stopped()
 
 
+# 5. Wait until ImageProcessor found square and changes state
 def running_forwards():
-    # Wait until ImageProcessor found square and changes state
     print("[ MAIN ] running_forwards()")
 
 
+# 6. Drop cargo and then continue until arrived at desination
 def found_destination():
     print("[ MAIN ] fount_destination()")
     print("[ MAIN ] Attempting to stop Image Processor")
@@ -200,20 +205,23 @@ def found_destination():
     print("[ MAIN ] Attempting to stop StepperH")
     stepperH.running = False
 
-    # TODO: change current position
+    # Stepper going down to drop cargo
     print("[ MAIN ] Resuming StepperV")
     stepperV.on(int(1), stepperH.get_y())
     stepperV.resume_downwards()
 
-    electroMagnet.off()
+    electroMagnet.off() # Drop cargo
+    stepperV.on(int(0), stepperH.get_y()) # Resume upwards
+    stepperH.run_until_collided()
 
-    stepperV.on(int(0), stepperH.get_y())
-
-    stepperH.run_until_stopped()
-
-
-def cargo_at_bay():
-    electroMagnet.power_off()
+    print("[ MAIN ] ------------------------------------------------------------------------------")
+    print("[ MAIN ] Final stats:")
+    print("[ MAIN ] ------------------------------------------------------------------------------")
+    print("[ MAIN ] Steps taken by StepperH: N/A")
+    print("[ MAIN ] Time passed until arrived: N/A")
+    print("[ MAIN ] Average skill level: 1'000'000!")
+    print("[ MAIN ] Final costs for development: CHF 500.-")
+    print("[ MAIN ] ------------------------------------------------------------------------------")
 
 
 if __name__ == '__main__':
@@ -228,9 +236,13 @@ if __name__ == '__main__':
         stepperV = StepperV()
         imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
+        collisionButton = CollisionButton()
 
         # Register self to Observer
+        print("[ MAIN ] Registering StepperH to Observer")
         stepperH.register(mainthread)
+        # print("[ MAIN ] Registering CollisionButton to Observer")
+        # collisionButton.register(mainthread)
 
         # Add transitions
         add_mainthread_transitions(self_sm)
@@ -244,7 +256,6 @@ if __name__ == '__main__':
         server.server_got_signal = server_got_signal
         stepperH.stepperh_at_position = stepperh_at_position
         stepperV.stepperv_at_position = stepperv_at_position
-        stepperV.cargo_at_bay = cargo_at_bay
         imgProcessor.found_destination = found_destination
 
         # 1. BTServer starten
@@ -254,4 +265,8 @@ if __name__ == '__main__':
         while mainthread.is_running():
             pass
     except KeyboardInterrupt:
+        print("[ MAIN ] Switching off program!")
+        imgProcessor.stop_imgproc()
+        electroMagnet.off()
         stepperH.stop_running()
+        mainthread.stop_running()

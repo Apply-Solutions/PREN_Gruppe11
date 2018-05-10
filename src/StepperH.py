@@ -2,7 +2,6 @@ from time import sleep
 from StateMachine import StateMachine
 import math
 import RPi.GPIO as GPIO
-import threading
 from Observable import Observable
 
 DIR = 24  # Direction GPIO Pin
@@ -54,13 +53,27 @@ class StepperH(Observable):
 
     def run_until_stopped(self):
         self.running = True
-        print("[ StepperH ] Resume forwards")
+        print("[ StepperH ] Resume forwards until square found")
         print("[ StepperH ] ON")
 
         while self.running:
             self.do_steps()
 
         print("[ StepperH ] OFF")
+
+    def run_until_collided(self, collision_button):
+        self.running = True
+        print("[ StepperH ] Resume forwards until collision")
+        print("[ StepperH ] ON")
+
+        while self.running:
+            self.do_steps()
+            if collision_button.has_collided():
+                self.running = False
+
+        print("[ StepperH ] OFF")
+        print("[ StepperH ] -------------- YOU HAVE ARRIVED AT YOUR FINAL DESTINATION ----------------")
+
 
     def stop_running(self):
         self.running = False

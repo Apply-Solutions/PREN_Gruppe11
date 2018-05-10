@@ -10,6 +10,6 @@ class Observable:
     def unregister(self, who):
         del self.subscribers[who]
 
-    def dispatch(self, message):
+    def dispatch(self, message=''):
         for subscriber, callback in self.subscribers.items():
             callback(message)
