@@ -166,6 +166,7 @@ def stepperh_at_position():
     stepperV.start_stepperV()
     stepperV.on(int(1), int(stepperH.get_y()))
     stepperv_at_position()
+    stepperV.stop()
 
     # electroMagnet.power_on()
     # electroMagnet.start()
