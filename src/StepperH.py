@@ -15,7 +15,7 @@ step_count = SPR
 delay = 0.0005
 
 
-class StepperH(Observable):
+class StepperH(threading.Thread, Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
@@ -26,6 +26,7 @@ class StepperH(Observable):
         GPIO.setup(STEP, GPIO.OUT)
         GPIO.output(DIR, CCW)
 
+        threading.Thread.__init__(self)
         Observable.__init__(self)
         self.amount_of_steps = 0
         self.steps_taken = 1
@@ -37,43 +38,37 @@ class StepperH(Observable):
         print("[ StepperH ] Set delay between steps to " + str(self.delay) + "s")
         print("[ StepperH ] initialized")
 
-    def start_run_steps(self):
-        thrd = threading.Thread(target=self.run_steps, args=())
-        thrd.daemon = True
-        thrd.start()
+    def run(self):
 
-    def run_steps(self):
-        # Run Stepper until preset amount of steps are taken
-        print("[ StepperH ] ON")
-        print("[ StepperH ] Steps taken: " + str(self.steps_taken))
-        print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
+        if self.amount_of_steps != 0:
+            # 1. Run Stepper until preset amount of steps are taken
+            print("[ StepperH ] ON")
+            print("[ StepperH ] Steps taken: " + str(self.steps_taken))
+            print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        while self.steps_taken < self.amount_of_steps:
-            self.do_steps()
+            while self.steps_taken < self.amount_of_steps:
+                self.do_steps()
 
-        print("[ StepperH ] OFF")
-        print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
-        print("[ StepperH ] Waiting for state change")
-        self.stop_stepperH()
+            print("[ StepperH ] OFF")
+            print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
+            print("[ StepperH ] Waiting for state change")
+            self.stop_stepperH()
+            self = None
 
-    def start_run_forever(self):
-        thrd = threading.Thread(target=self.run_forever, args=())
-        thrd.daemon = True
-        thrd.start()
+        elif self.amount_of_steps == 0:
+            # 3. Resume forwards until stopped by main thread when square found
+            print("[ StepperH ] Resume forwards")
+            self.steps_taken = 0
+            # TODO: calculate rest of steps for amount of steps!!
+            print("[ StepperH ] Steps taken set back to 0")
 
-    def run_forever(self):
-        # Run forwards until stopped by main thread when square found
-        print("[ StepperH ] Run forwards")
-        self.steps_taken = 0
-        # TODO: calculate rest of steps for amount of steps!!
-        print("[ StepperH ] Steps taken set back to 0")
+            print("[ StepperH ] ON")
+            while self.running:
+                self.do_steps()
 
-        print("[ StepperH ] ON")
-        while self.running:
-            self.do_steps()
-
-        print("[ StepperH ] OFF")
-        print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
+            print("[ StepperH ] OFF")
+            print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
+            self._stop_event.set()
 
     def get_sm(self):
         return self.sm

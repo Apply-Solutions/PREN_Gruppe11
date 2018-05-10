@@ -153,7 +153,7 @@ def server_got_signal(steps):
     print("[ MAIN ]: Get X, "+str(stepperH.get_x()))
     stepperH.set_distance(steps)
     stepperH.start_stepperH()
-    stepperH.start_run_steps()
+    stepperH.start()
     print("[ MAIN ]: StepperH started")
 
 
@@ -180,8 +180,12 @@ def stepperv_at_position():
 
     print("[ MAIN ] Starting Image Processor...")
     imgProcessor.start_thread()
-    stepperH.start_run_forever()
+    stepperH2.start()
     print("[ MAIN ] StepperH resume forwards")
+
+
+def running_forwards():
+    print("[ MAIN ] running_forwards()")
 
 
 def found_destination():
@@ -211,15 +215,11 @@ if __name__ == '__main__':
         StepperH.clean_up()
         stepperH = StepperH()
         stepperH.daemon = True
-        # stepperH2 = StepperH()
+        stepperH2 = StepperH()
         stepperV = StepperV()
         imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
 
-        # Set daemon
-        server.daemon = True
-
-        # Add main thread as observer for stepperH
         stepperH.register(mainthread)
 
         # Add transitions
