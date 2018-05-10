@@ -12,6 +12,7 @@ import time
 _states = ['initialized', 'running', 'stopped']
 server = 0
 
+
 class MainThread(Observer):
 
     def __init__(self):
