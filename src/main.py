@@ -10,6 +10,7 @@ import time
 _states = ['initialized', 'running', 'stopped']
 server = 0
 
+
 def add_mainthread_transitions(machine):
     machine.add_transition(trigger='start',
                            source='initialized',
@@ -151,9 +152,8 @@ class MainThread(Observer):
 def server_got_signal(steps):
     print("[ MAIN ]: BTServer got signal")
     print("[ MAIN ]: Get X, "+str(stepperH.get_x()))
-    stepperH.set_distance(steps)
     stepperH.start_stepperH()
-    stepperH.start()
+    stepperH.run_to_cargo(steps)
     print("[ MAIN ]: StepperH started")
 
 
@@ -163,13 +163,12 @@ def stepperh_at_position():
     print("[ MAIN ] stepperh_at_position()")
     print("[ MAIN ] Set StepperV amount of steps to take: "+str(stepperH.get_y()))
 
-    stepperV.start_stepperV()
+    stepperV.start_stepperV() # State Change
     stepperV.on(int(1), int(stepperH.get_y()))
-    stepperv_at_position()
-    stepperV.stop()
 
-    electroMagnet.power_on()
-    electroMagnet.start()
+    electroMagnet.on()
+
+    stepperV.stop_stepperV() # State Change
 
 
 # 4. Get cargo, StepperV move up, Start ImageProcessing, -> Start StepperH
@@ -177,15 +176,20 @@ def stepperv_at_position():
     print("[ MAIN ] stepperv_at_position()")
     time.sleep(2)
 
+    print("[ MAIN ] Amount of steps for StepperV = "+str(stepperH.get_y()))
+    time.sleep(5)
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
     imgProcessor.start_thread()
-    stepperH2.start()
+
     print("[ MAIN ] StepperH resume forwards")
+    stepperH.resume_forwards() # State Change to running_forwards
+    stepperH.run_until_stopped()
 
 
 def running_forwards():
+    # Wait until ImageProcessor found square and changes state
     print("[ MAIN ] running_forwards()")
 
 
@@ -194,12 +198,18 @@ def found_destination():
     print("[ MAIN ] Attempting to stop Image Processor")
     imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
-    stepperH.stop_running()
+    stepperH.running = False
 
     # TODO: change current position
-    stepperV.amount_of_steps = stepperH.get_y()
     print("[ MAIN ] Resuming StepperV")
+    stepperV.on(int(1), stepperH.get_y())
     stepperV.resume_downwards()
+
+    electroMagnet.off()
+
+    stepperV.on(int(0), stepperH.get_y())
+
+    stepperH.run_until_stopped()
 
 
 def cargo_at_bay():
@@ -213,14 +223,13 @@ if __name__ == '__main__':
         # 0. Initialising (BTServer, Steppers, ImageProcessor, ElectroMagnet, Nullpunkt)
         self_sm = StateMachine.get_main_machine(mainthread, _states)
         server = BluetoothServer()
-        StepperH.clean_up()
+
         stepperH = StepperH()
-        stepperH.daemon = True
-        stepperH2 = StepperH()
         stepperV = StepperV()
         imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
 
+        # Register self to Observer
         stepperH.register(mainthread)
 
         # Add transitions
@@ -240,11 +249,9 @@ if __name__ == '__main__':
 
         # 1. BTServer starten
         server.start()
+        # -> Next step at method server_got_signal
 
         while mainthread.is_running():
             pass
     except KeyboardInterrupt:
-        server.stop()
-        stepperH.stop()
-        imgProcessor.stop()
-        electroMagnet.stop()
+        stepperH.stop_running()

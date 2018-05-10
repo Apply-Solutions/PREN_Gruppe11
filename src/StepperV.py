@@ -41,9 +41,6 @@ class StepperV():
         print("[ StepperV ] Steps taken: " + str(self.steps_taken))
         print("[ StepperV ] Waiting for cargo...")
 
-    def stop(self):
-        self.stop_stepperV()
-
     def get_sm(self):
         return self.sm
 

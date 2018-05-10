@@ -15,7 +15,7 @@ step_count = SPR
 delay = 0.0005
 
 
-class StepperH(threading.Thread, Observable):
+class StepperH(Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
@@ -26,49 +26,41 @@ class StepperH(threading.Thread, Observable):
         GPIO.setup(STEP, GPIO.OUT)
         GPIO.output(DIR, CCW)
 
-        threading.Thread.__init__(self)
         Observable.__init__(self)
         self.amount_of_steps = 0
         self.steps_taken = 1
         self.delay = 0.05
         self.count = 5
         self.running = True # to stop stepper from main thread in the end
-        self._stop_event = threading.Event()
+
         self.sm = StateMachine.get_stepperh_machine(self, StepperH._states)
         print("[ StepperH ] Set delay between steps to " + str(self.delay) + "s")
         print("[ StepperH ] initialized")
 
-    def run(self):
+    def run_to_cargo(self, amount_of_steps):
+        self.amount_of_steps = amount_of_steps
+        print("[ StepperH ] ON")
+        print("[ StepperH ] Steps taken: " + str(self.steps_taken))
+        print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        if self.amount_of_steps != 0:
-            # 1. Run Stepper until preset amount of steps are taken
-            print("[ StepperH ] ON")
-            print("[ StepperH ] Steps taken: " + str(self.steps_taken))
-            print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
+        while self.steps_taken < self.amount_of_steps:
+            self.do_steps()
 
-            while self.steps_taken < self.amount_of_steps:
-                self.do_steps()
+        print("[ StepperH ] OFF")
+        print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
+        print("[ StepperH ] Waiting for state change")
 
-            print("[ StepperH ] OFF")
-            print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
-            print("[ StepperH ] Waiting for state change")
-            self.stop_stepperH()
-            self = None
+        self.stop_stepperH() # Change state in State Machine
 
-        elif self.amount_of_steps == 0:
-            # 3. Resume forwards until stopped by main thread when square found
-            print("[ StepperH ] Resume forwards")
-            self.steps_taken = 0
-            # TODO: calculate rest of steps for amount of steps!!
-            print("[ StepperH ] Steps taken set back to 0")
+    def run_until_stopped(self):
+        self.running = True
+        print("[ StepperH ] Resume forwards")
+        print("[ StepperH ] ON")
 
-            print("[ StepperH ] ON")
-            while self.running:
-                self.do_steps()
+        while self.running:
+            self.do_steps()
 
-            print("[ StepperH ] OFF")
-            print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
-            self._stop_event.set()
+        print("[ StepperH ] OFF")
 
     def stop_running(self):
         self.running = False
@@ -102,18 +94,10 @@ class StepperH(threading.Thread, Observable):
         return self.position[0]
 
     def get_y(self):
-        # To set to actual y-steps
-        return 800
-
-    def set_distance(self, steps):
-        self.amount_of_steps = int(steps)
-        print("[ StepperH ] Set amount of steps to " + str(self.amount_of_steps))
-
-    @staticmethod
-    def set_direction(direction):
-        GPIO.output(DIR, direction)
-        print("[ StepperH ]"
-              " Set direction to "+str(direction))
+        y_in_cm = (-2 * 10**-12 * self.position[0]**3) + 4 * 10**-7 * self.position[0]**2 + 0.0004 * self.position[0] + 35.508
+        y_in_cm = y_in_cm - 11.5
+        y_in_schritte = int(round(y_in_cm / 0.01570796))
+        return y_in_schritte
 
     @staticmethod
     def clean_up():
