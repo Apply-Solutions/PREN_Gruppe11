@@ -6,7 +6,7 @@ import time
 GPIO.setmode(GPIO.BCM)
 
 # set GPIO Pins
-GPIO_TRIGGER = 12
+GPIO_TRIGGER = 4
 
 # set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
@@ -21,6 +21,7 @@ def magnet():
     GPIO.output(GPIO_TRIGGER, GPIO.LOW)
 
     print("Off")
+
 
 if __name__ == '__main__':
   try:

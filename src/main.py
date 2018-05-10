@@ -168,8 +168,8 @@ def stepperh_at_position():
     stepperv_at_position()
     stepperV.stop()
 
-    # electroMagnet.power_on()
-    # electroMagnet.start()
+    electroMagnet.power_on()
+    electroMagnet.start()
 
 
 # 4. Get cargo, StepperV move up, Start ImageProcessing, -> Start StepperH

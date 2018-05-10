@@ -13,6 +13,7 @@ class ElectroMagnet(threading.Thread):
 
     def __init__(self):
         # GPIO Mode (BOARD / BCM)
+        self.running = True
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
         GPIO.output(GPIO_TRIGGER, GPIO.LOW)
