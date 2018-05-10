@@ -194,7 +194,7 @@ def found_destination():
     print("[ MAIN ] Attempting to stop Image Processor")
     imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
-    stepperH.running = False
+    stepperH.stop_running()
 
     # TODO: change current position
     stepperV.amount_of_steps = stepperH.get_y()

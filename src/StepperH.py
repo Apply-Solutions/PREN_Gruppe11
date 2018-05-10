@@ -70,6 +70,10 @@ class StepperH(threading.Thread, Observable):
             print("[ StepperH ] Steps taken: " + str(self.steps_taken) + ", Steps to take: " + str(self.amount_of_steps))
             self._stop_event.set()
 
+    def stop_running(self):
+        self.running = False
+        self.stop_stepperH()
+
     def get_sm(self):
         return self.sm
 
