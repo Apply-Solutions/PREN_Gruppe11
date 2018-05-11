@@ -36,7 +36,7 @@ class ElectroMagnet(threading.Thread):
 
     def run(self):
         GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
-        print("[ Electromagnet ] ON")
+        print("[ ElectroMagnet ] ON")
         while self.running:
             pass
 
@@ -57,5 +57,6 @@ if __name__ == '__main__':
         while True:
             pass
     except KeyboardInterrupt:
+        print("[ ElectroMagnet ] OFF")
         magnet.running = False
         magnet.clean_up()

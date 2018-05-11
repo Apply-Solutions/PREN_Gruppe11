@@ -6,7 +6,7 @@ from ElectroMagnet import ElectroMagnet
 from CollisionButton import CollisionButton
 from StateMachine import StateMachine
 from Observer import Observer
-import transitions
+import transition
 import time
 
 _states = ['initialized', 'running', 'stopped']
@@ -20,12 +20,16 @@ class MainThread(Observer):
         self.message_number = 0
 
     def update(self, message):
-        if self.message_number > 10:
-            server.send_message(server.getDatetime() + "@[ position ];" + message + "#")
-        if self.message_number <= 10:
-            self.message_number += 1
+        if message != 'True':
+            if self.message_number > 10:
+                server.send_message(server.getDatetime() + "@[ position ];" + message + "#")
+            if self.message_number <= 10:
+                self.message_number += 1
+            else:
+                self.message_number = 0
         else:
-            self.message_number = 0
+            print("[ MAIN ] Stopping StepperH because of collision")
+            stepperH.running = False
 
     def stop_stepper_on_collision(self):
         stepperH.stop_running()
@@ -76,10 +80,9 @@ def stepperh_at_position():
 # ------------------------------------------------------------------
 def stepperv_at_position():
     print("[ MAIN ] stepperv_at_position()")
-    time.sleep(2)
+    time.sleep(1)
 
     print("[ MAIN ] Amount of steps for StepperV = "+str(stepperH.get_y()))
-    time.sleep(5)
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
@@ -117,8 +120,12 @@ def found_destination():
     # 7. Go to finish line
     # ------------------------------------------------------------------
     stepperV.on(int(0), stepperH.get_y()) # Resume upwards
-    stepperH.run_until_collided()
+    collisionButton.start_collision_thread()
+    stepperH.run_until_collided(collisionButton)
 
+    print
+    print
+    print
     print("[ MAIN ] ------------------------------------------------------------------------------")
     print("[ MAIN ] Final stats:")
     print("[ MAIN ] ------------------------------------------------------------------------------")
@@ -127,6 +134,9 @@ def found_destination():
     print("[ MAIN ] Average skill level: 1'000'000!")
     print("[ MAIN ] Final costs for development: CHF 500.-")
     print("[ MAIN ] ------------------------------------------------------------------------------")
+    print
+    print
+    print
 
 
 if __name__ == '__main__':
@@ -144,17 +154,14 @@ if __name__ == '__main__':
         electroMagnet = ElectroMagnet()
         collisionButton = CollisionButton()
 
-        # Register self to Observer
-        print("[ MAIN ] Registering StepperH to Observer")
-        stepperH.register(mainthread)
-
         # Add transitions
-        transitions.add_mainthread_transitions(self_sm)
-        transitions.add_btserver_transitions(server.get_sm())
-        transitions.add_stepperh_transitions(stepperH.get_sm())
-        transitions.add_stepperv_transitions(stepperV.get_sm())
-        transitions.add_magnet_transitions(electroMagnet.get_sm())
-        transitions.add_imgproc_transitions(imgProcessor.get_sm())
+        transition.add_mainthread_transitions(self_sm)
+        transition.add_btserver_transitions(server.get_sm())
+        transition.add_stepperh_transitions(stepperH.get_sm())
+        transition.add_stepperv_transitions(stepperV.get_sm())
+        transition.add_magnet_transitions(electroMagnet.get_sm())
+        transition.add_imgproc_transitions(imgProcessor.get_sm())
+        transition.add_collision_button_transitions(collisionButton.get_sm())
 
         # Dynamically add methods
         server.server_got_signal = server_got_signal
@@ -162,17 +169,37 @@ if __name__ == '__main__':
         stepperV.stepperv_at_position = stepperv_at_position
         imgProcessor.found_destination = found_destination
 
+        # Register self to Observer
+        print("[ MAIN ] Registering StepperH to Observer")
+        stepperH.register(mainthread)
+        collisionButton.register(mainthread)
+
+        mainthread.start_mt()
+
+        print("[ Main ] Starting bluetooth server")
+
         # ------------------------------------------------------------------
         # 1. Start BTServer
         # ------------------------------------------------------------------
-        server.start()
+        server.start_thread()
         # -> Next step at method 2. server_got_signal
 
+        print("[ Main ] Started bluetooth server")
+
         while mainthread.is_running():
-            pass
+            time.sleep(2)
     except KeyboardInterrupt:
         print("[ MAIN ] Switching off program!")
-        imgProcessor.stop_imgproc()
-        electroMagnet.off()
-        stepperH.stop_running()
-        mainthread.stop_running()
+        try:
+            print("[ MAIN ] Attempting to switch off ImageProcessor")
+            imgProcessor.stop_imgproc()
+            print("[ MAIN ] Attempting to switch off ElectroMagnet")
+            electroMagnet.off()
+            print("[ MAIN ] Attempting to switch off StepperH")
+            stepperH.stop_running()
+            print("[ MAIN ] Attempting to switch off MainThread")
+            mainthread.stop_running()
+            print("[ MAIN ] Attempting to switch off CollisionButton")
+            collisionButton.stop_collision()
+        except Exception:
+            print("[ MAIN ] Failed to stop program correctly...OFF and OUT!")

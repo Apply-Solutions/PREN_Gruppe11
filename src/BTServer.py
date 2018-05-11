@@ -3,17 +3,16 @@ from random import random
 from StateMachine import StateMachine
 import datetime
 import sys
-import threading
+from threading import Thread
 
 server_socket = BluetoothSocket(RFCOMM)
 
 
-class BluetoothServer(threading.Thread):
+class BluetoothServer:
     _states = ['initialized', 'searching', 'connecting', 'connected', 'waiting', 'running', 'stopped']
     __client_sock__ = ''
 
     def __init__(self):
-        threading.Thread.__init__(self)
         self.sm = StateMachine.get_bt_server_machine(self, BluetoothServer._states)
         print("[ BTServer ] Bluetooth server started")
 
@@ -25,6 +24,13 @@ class BluetoothServer(threading.Thread):
 
     def get_sm(self):
         return self.sm
+
+    def start_thread(self):
+        thrd = Thread(target=self.run, args=())
+        thrd.daemon = True
+        # start the thread to read frames from the video stream
+        thrd.start()
+        return self
 
     def run(self):
         port = 8700

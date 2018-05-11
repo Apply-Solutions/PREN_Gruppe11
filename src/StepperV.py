@@ -1,6 +1,7 @@
 from StateMachine import StateMachine
 from time import sleep
 import RPi.GPIO as GPIO
+import math
 
 DIR = 21   # Direction GPIO Pin
 STEP = 20  # Step GPIO Pin
@@ -14,7 +15,8 @@ class StepperV():
     def __init__(self):
         # init attributes
         self.steps_taken = 0
-        self.delay = 0.0005
+        self.delay = 0.001
+        self.count = 5
         self.sm = StateMachine.get_stepperv_machine(self, StepperV._states)
         # init GPIO
         GPIO.setmode(GPIO.BCM)
@@ -25,12 +27,19 @@ class StepperV():
 
     def on(self, direction=1, amount_of_steps=0):
         self.steps_taken = 0
+        self.count = 5
         GPIO.output(21, direction)
         print("[ StepperV ] Direction set to: "+str(direction))
         print("[ StepperV ] Steps to take: "+str(amount_of_steps))
         print("[ StepperV ] ON")
 
         while int(self.steps_taken) < int(amount_of_steps):
+            if self.delay > 0.0005:
+                self.delay = math.exp(-self.count) + 0.0005
+                self.count = self.count + 0.02
+
+            if (amount_of_steps - self.steps_taken) <= 500:
+                self.delay = 0.001
             GPIO.output(STEP, GPIO.HIGH)
             sleep(self.delay)
             GPIO.output(STEP, GPIO.LOW)

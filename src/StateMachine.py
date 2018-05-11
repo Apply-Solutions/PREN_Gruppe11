@@ -8,6 +8,7 @@ class StateMachine:
     _stepperv_machine = None
     _magnet_machine = None
     _camera_machine = None
+    _collision_machine = None
 
     @staticmethod
     def get_main_machine(model, states):
@@ -50,3 +51,10 @@ class StateMachine:
             StateMachine._camera_machine = Machine(model=model, states=states, initial='initialized')
 
         return StateMachine._camera_machine
+
+    @staticmethod
+    def get_collision_machine(model, states):
+        if StateMachine._collision_machine is None:
+            StateMachine._collision_machine = Machine(model=model, states=states, initial='initialized')
+
+        return StateMachine._collision_machine

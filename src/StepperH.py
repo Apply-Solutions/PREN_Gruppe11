@@ -68,10 +68,11 @@ class StepperH(Observable):
 
         while self.running:
             self.do_steps()
-            if collision_button.has_collided():
-                self.running = False
 
         print("[ StepperH ] OFF")
+        print
+        print
+        print
         print("[ StepperH ] -------------- YOU HAVE ARRIVED AT YOUR FINAL DESTINATION ----------------")
 
 

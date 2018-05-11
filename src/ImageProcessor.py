@@ -32,8 +32,10 @@ class ImageProcessor:
 
     def start_thread(self):
         self.start_imgproc()
+        thrd = Thread(target=self.check_if_square, args=())
+        thrd.daemon = True
         # start the thread to read frames from the video stream
-        Thread(target=self.check_if_square, args=()).start()
+        thrd.start()
         return self
 
     def stop(self):

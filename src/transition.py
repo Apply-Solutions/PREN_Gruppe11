@@ -1,5 +1,5 @@
 def add_mainthread_transitions(machine):
-    machine.add_transition(trigger='start',
+    machine.add_transition(trigger='start_mt',
                            source='initialized',
                            dest='running')
     machine.add_transition(trigger='stop_running',
@@ -69,7 +69,6 @@ def add_stepperv_transitions(machine):
                            source='running_upwards',
                            dest='stopped')
 
-
     machine.add_transition(trigger='send_at_position_signal',
                            source='running_downwards',
                            dest='at_destination_pos',
@@ -109,3 +108,12 @@ def add_magnet_transitions(machine):
     machine.add_transition(trigger='power_off',
                             source='on',
                             dest='off')
+
+
+def add_collision_button_transitions(machine):
+    machine.add_transition(trigger="start_collision",
+                           source="initialized",
+                           dest="running")
+    machine.add_transition(trigger="stop_collision",
+                           source="running",
+                           dest="stopped")
