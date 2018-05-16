@@ -1,10 +1,15 @@
 import numpy as np
 import cv2
 import picamera
+import time
 from picamera.array import PiRGBArray
+from threading import Thread
+from StateMachine import StateMachine
 
 
 class ImageProcessor:
+    _states = ['initialized', 'processing', 'found_square']
+    delay_in_sec = 0.5
 
     def __init__(self):
         resolution = (320, 240)
@@ -17,16 +22,30 @@ class ImageProcessor:
         self.rawCapture = PiRGBArray(self.camera, resolution)
 
         self.is_processing = True;
+
+        self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
+
         self.is_where_found = False
         self.center_x = 0
         self.center_y = 0
         print("[ ImageProcessor ] initialized")
+
+    def start_thread(self):
+        self.start_imgproc()
+        thrd = Thread(target=self.check_if_square, args=())
+        thrd.daemon = True
+        # start the thread to read frames from the video stream
+        thrd.start()
+        return self
 
     def stop(self):
         self.is_processing = False;
 
     def get_state(self):
         return self.is_where_found
+
+    def get_sm(self):
+        return self.sm
 
     def get_center_x(self):
         return self.center_x
@@ -39,36 +58,37 @@ class ImageProcessor:
         count = 1
 
         with PiRGBArray(self.camera) as output:
-            self.camera.capture(output, 'rgb', use_video_port=True)
-            frame = output.array
-            list_of_squares = self.find_squares(frame)
+            while self.is_processing:
 
-            # save image to debug
-            cv2.drawContours(frame, list_of_squares, -1, (0, 255, 0), 3)
-            cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', frame)
-            count = count + 1
+                self.camera.capture(output, 'rgb', use_video_port=True)
+                frame = output.array
+                list_of_squares = self.find_squares(frame)
 
-            output.truncate(0)
-            print("[ ImageProcessor ] Length: len(list_of_squares) ")
-            if len(list_of_squares) == 0:
-                self.is_where_found = False
-            else:
-                print("[ ImageProcessor ] Square found")
-                # calculate center
-                x_list = []
-                y_list = []
+                output.truncate(0)
+                print("[ ImageProcessor ] Length: len(list_of_squares) ")
+                if len(list_of_squares) == 0:
+                    self.is_where_found = False
+                else:
+                    print("[ ImageProcessor ] Square found")
+                    # calculate center
+                    x_list = []
+                    y_list = []
 
-                for square in list_of_squares:
-                    m = cv2.moments(square)
-                    x_list.append(int(m["m10"] / m["m00"]))
-                    y_list.append(int(m["m01"] / m["m00"]))
+                    for square in list_of_squares:
+                        m = cv2.moments(square)
+                        x_list.append(int(m["m10"] / m["m00"]))
+                        y_list.append(int(m["m01"] / m["m00"]))
 
-                self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
-                self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
+                    self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
+                    self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
-                print("[ ImageProcessor ] Set state.")
-                self.is_where_found = True
-                print("[ ImageProcessor ] Processing stopped")
+                    print("[ ImageProcessor ] Set state.")
+                    print("[ ImageProcessor ] X: "+str(self.get_center_x()))
+                    self.is_where_found = True
+                    self.stop_imgproc()
+                    print("[ ImageProcessor ] Processing stopped")
+
+                time.sleep(self.delay_in_sec)
 
     @staticmethod
     def find_squares(img):

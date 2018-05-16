@@ -32,7 +32,7 @@ class CollisionButton(Observable):
 
     def detect_collision(self):
         while self.is_running():
-            time.sleep(0.5)
+            time.sleep(1.5)
             # print("[ CollisionButton ]" + str(GPIO.input(GPIO_ECHO)))
             if GPIO.input(GPIO_ECHO):
                 print("[ CollisionButton ] Collided")
