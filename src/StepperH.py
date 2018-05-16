@@ -61,7 +61,7 @@ class StepperH(Observable):
         self.count = 5
 
         while self.running:
-            self.do_steps(0.0008)
+            self.do_steps(0.0009)
 
         print("[ StepperH ] OFF")
 

@@ -38,6 +38,7 @@ class ImageProcessor:
         p = Process(target=self.check_if_square, args=())
         p.start()
         p.join()
+        print("[ ImageProcessor ]  join process")
 
         return self
 
