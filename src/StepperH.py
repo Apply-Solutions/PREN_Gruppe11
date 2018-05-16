@@ -63,7 +63,7 @@ class StepperH(Observable):
 
         img_processor = ImageProcessor()
 
-        while self.running & img_processor.is_where_found:
+        while self.running and img_processor.is_where_found:
             self.do_steps()
             img_processor.find_squares()
 
