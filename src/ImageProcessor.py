@@ -9,7 +9,7 @@ from StateMachine import StateMachine
 
 class ImageProcessor:
     _states = ['initialized', 'processing', 'found_square']
-    delay_in_sec = 0.5
+    delay_in_sec = 0.3
 
     def __init__(self):
         resolution = (320, 240)
