@@ -9,7 +9,7 @@ from StateMachine import StateMachine
 
 class ImageProcessor:
     _states = ['initialized', 'processing', 'found_square']
-    delay_in_sec = 0.1
+    delay_in_sec = 0.5
 
     def __init__(self):
         resolution = (320, 240)
@@ -64,11 +64,6 @@ class ImageProcessor:
                 frame = output.array
                 list_of_squares = self.find_squares(frame)
 
-                # save image to debug
-                cv2.drawContours(frame, list_of_squares, -1, (0, 255, 0), 3)
-                cv2.imwrite('../../data/pic_edited_' + str(count) + '.jpg', frame)
-                count = count + 1
-
                 output.truncate(0)
                 print("[ ImageProcessor ] Length: len(list_of_squares) ")
                 if len(list_of_squares) == 0:
@@ -88,6 +83,7 @@ class ImageProcessor:
                     self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
                     print("[ ImageProcessor ] Set state.")
+                    print("[ ImageProcessor ] X: "+str(self.get_center_x()))
                     self.is_where_found = True
                     self.stop_imgproc()
                     print("[ ImageProcessor ] Processing stopped")
