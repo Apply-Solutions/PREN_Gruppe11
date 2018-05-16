@@ -61,7 +61,7 @@ class StepperH(Observable):
         self.count = 5
 
         while self.running:
-            self.do_steps(0.0008)
+            self.do_steps(0.0015)
 
         print("[ StepperH ] OFF")
 
@@ -74,7 +74,7 @@ class StepperH(Observable):
 
         while steps_tekken < self.amount_of_steps:
             steps_tekken += 1
-            self.do_steps(0.0008)
+            self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -106,7 +106,7 @@ class StepperH(Observable):
 
     def do_steps(self, delay):
         if self.delay > delay:
-            self.delay = math.exp(-self.count) + 0.0005
+            self.delay = math.exp(-self.count) + 0.0008
             self.count = self.count + 0.01
 
         GPIO.setmode(GPIO.BCM)
