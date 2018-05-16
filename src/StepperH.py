@@ -3,6 +3,7 @@ from StateMachine import StateMachine
 import math
 import RPi.GPIO as GPIO
 from Observable import Observable
+from src.ImageProcessor import ImageProcessor
 
 DIR = 24  # Direction GPIO Pin
 STEP = 23  # Step GPIO Pin
@@ -60,8 +61,11 @@ class StepperH(Observable):
         self.delay = 0.06
         self.count = 5
 
-        while self.running:
+        img_processor = ImageProcessor()
+
+        while self.running & img_processor.is_where_found:
             self.do_steps()
+            img_processor.find_squares()
 
         print("[ StepperH ] OFF")
 

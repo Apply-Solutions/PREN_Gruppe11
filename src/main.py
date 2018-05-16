@@ -85,12 +85,10 @@ def stepperv_at_position():
     print("[ MAIN ] Amount of steps for StepperV = "+str(stepperH.get_y()))
     stepperV.on(int(0), int(stepperH.get_y()))
 
-    print("[ MAIN ] Starting Image Processor...")
-    imgProcessor.start_thread()
-
     print("[ MAIN ] StepperH resume forwards")
     stepperH.resume_forwards() # State Change to running_forwards
     stepperH.run_until_stopped()
+    found_destination()
 
 
 # ------------------------------------------------------------------
@@ -105,8 +103,6 @@ def running_forwards():
 # ------------------------------------------------------------------
 def found_destination():
     print("[ MAIN ] fount_destination()")
-    print("[ MAIN ] Attempting to stop Image Processor")
-    imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
 
     stepperH.running = False
@@ -151,7 +147,6 @@ if __name__ == '__main__':
 
         stepperH = StepperH()
         stepperV = StepperV()
-        imgProcessor = ImageProcessor()
         electroMagnet = ElectroMagnet()
         collisionButton = CollisionButton()
 
@@ -161,7 +156,6 @@ if __name__ == '__main__':
         transition.add_stepperh_transitions(stepperH.get_sm())
         transition.add_stepperv_transitions(stepperV.get_sm())
         transition.add_magnet_transitions(electroMagnet.get_sm())
-        transition.add_imgproc_transitions(imgProcessor.get_sm())
         transition.add_collision_button_transitions(collisionButton.get_sm())
 
         # Dynamically add methods
@@ -192,8 +186,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("[ MAIN ] Switching off program!")
         try:
-            print("[ MAIN ] Attempting to switch off ImageProcessor")
-            imgProcessor.stop_imgproc()
             print("[ MAIN ] Attempting to switch off ElectroMagnet")
             electroMagnet.off()
             print("[ MAIN ] Attempting to switch off StepperH")
