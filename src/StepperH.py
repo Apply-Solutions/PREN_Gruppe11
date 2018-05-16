@@ -3,7 +3,7 @@ from StateMachine import StateMachine
 import math
 import RPi.GPIO as GPIO
 from Observable import Observable
-from src.ImageProcessor import ImageProcessor
+from ImageProcessor import ImageProcessor
 
 DIR = 24  # Direction GPIO Pin
 STEP = 23  # Step GPIO Pin
@@ -12,6 +12,7 @@ CCW = 0  # Counterclockwise Rotation
 SPR = 1000  # Steps per Revolution (360 / 7.5)
 
 step_count = SPR
+
 
 class StepperH(Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
@@ -23,6 +24,8 @@ class StepperH(Observable):
         GPIO.setup(DIR, GPIO.OUT)
         GPIO.setup(STEP, GPIO.OUT)
         GPIO.output(DIR, CCW)
+
+        self.imgProcessor = ImageProcessor()
 
         Observable.__init__(self)
         self.amount_of_steps = 0
@@ -61,16 +64,13 @@ class StepperH(Observable):
         self.delay = 0.06
         self.count = 5
 
-        img_processor = ImageProcessor()
-
-        while self.running and img_processor.is_where_found:
-            self.do_steps()
-            img_processor.find_squares()
+        while self.running and not self.imgProcessor.is_where_found:
+            self.do_steps_slow()
 
         print("[ StepperH ] OFF")
 
-    def on(self, amount_of_steps):
-        self.amount_of_steps = amount_of_steps
+    def on(self):
+        self.amount_of_steps = int(round((self.imgProcessor.get_center_x() / 10) / 0.01570796))-5
         steps_tekken = 0
         print("[ StepperH ] ON")
         print("[ StepperH ] Steps taken: " + str(self.steps_taken))
@@ -129,6 +129,9 @@ class StepperH(Observable):
         if self.delay > 0.0015:
             self.delay = math.exp(-self.count) + 0.0005
             self.count = self.count + 0.0075
+
+        if not (self.steps_taken % 100):
+            self.imgProcessor.check_if_square()
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(DIR, GPIO.OUT)

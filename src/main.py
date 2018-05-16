@@ -106,7 +106,7 @@ def found_destination():
     print("[ MAIN ] Attempting to stop StepperH")
 
     stepperH.running = False
-    stepperH.on(int(round((imgProcessor.get_center_x() / 10) / 0.01570796))-5)
+    stepperH.on()
     # Stepper going down to drop cargo
     print("[ MAIN ] Resuming StepperV")
     stepperV.on(int(1), stepperH.get_y())
@@ -162,7 +162,6 @@ if __name__ == '__main__':
         server.server_got_signal = server_got_signal
         stepperH.stepperh_at_position = stepperh_at_position
         stepperV.stepperv_at_position = stepperv_at_position
-        imgProcessor.found_destination = found_destination
 
         # Register self to Observer
         print("[ MAIN ] Registering StepperH to Observer")
