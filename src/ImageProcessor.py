@@ -7,9 +7,10 @@ from threading import Thread
 from StateMachine import StateMachine
 
 
-class ImageProcessor:
+class ImageProcessor(Thread):
+
     _states = ['initialized', 'processing', 'found_square']
-    delay_in_sec = 0.3
+    delay_in_sec = 0.2
 
     def __init__(self):
         resolution = (320, 240)
@@ -30,14 +31,6 @@ class ImageProcessor:
         self.center_y = 0
         print("[ ImageProcessor ] initialized")
 
-    def start_thread(self):
-        self.start_imgproc()
-        thrd = Thread(target=self.check_if_square, args=())
-        thrd.daemon = True
-        # start the thread to read frames from the video stream
-        thrd.start()
-        return self
-
     def stop(self):
         self.is_processing = False;
 
@@ -53,7 +46,7 @@ class ImageProcessor:
     def get_center_y(self):
         return self.center_y
 
-    def check_if_square(self):
+    def run(self):
         # keep looping infinitely until the thread is stopped
         count = 1
 
