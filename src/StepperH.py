@@ -44,7 +44,7 @@ class StepperH(Observable):
         self.count = 5
 
         while self.steps_taken < self.amount_of_steps:
-            self.do_steps(0.0005)
+            self.do_steps(0.0003)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -61,7 +61,7 @@ class StepperH(Observable):
         self.count = 5
 
         while self.running:
-            self.do_steps(0.0008)
+            self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
 
@@ -74,7 +74,7 @@ class StepperH(Observable):
 
         while steps_tekken < self.amount_of_steps:
             steps_tekken += 1
-            self.do_steps(0.0008)
+            self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -122,7 +122,7 @@ class StepperH(Observable):
         Observable.dispatch(self, str(self.get_x()) + ";" + str(self.get_y()))
 
     def do_steps_slow(self):
-        if self.delay > 0.0015:
+        if self.delay > 0.001:
             self.delay = math.exp(-self.count) + 0.0005
             self.count = self.count + 0.0075
 
@@ -136,6 +136,7 @@ class StepperH(Observable):
         sleep(self.delay)
         self.steps_taken += 1
         self.update_position()
+        print("[ StepperH ] Steps taken: "+str(self.steps_taken))
         Observable.dispatch(self, str(self.get_x()) + ";" + str(self.get_y()))
 
     def update_position(self):
