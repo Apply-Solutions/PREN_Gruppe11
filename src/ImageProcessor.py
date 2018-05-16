@@ -32,7 +32,9 @@ class ImageProcessor:
         print("[ ImageProcessor ] initialized")
 
     def start_thread(self):
+        print("[ ImageProcessor ]  enter start thread")
         self.start_imgproc()
+        print("[ ImageProcessor ]  start process")
         p = Process(target=self.check_if_square, args=())
         p.start()
         p.join()
