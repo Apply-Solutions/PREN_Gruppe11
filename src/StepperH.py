@@ -70,7 +70,7 @@ class StepperH(Observable):
             has_found = self.has_found
             print("[ StepperH ] Value has found: " + str(has_found.value))
             if not has_found.value:
-                self.do_steps(0.001)
+                self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")
 
@@ -83,7 +83,7 @@ class StepperH(Observable):
 
         while steps_tekken < self.amount_of_steps:
             steps_tekken += 1
-            self.do_steps(0.001)
+            self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
