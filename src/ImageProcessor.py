@@ -37,7 +37,7 @@ class ImageProcessor:
         print("[ ImageProcessor ]  start process")
         p = Process(target=self.check_if_square, args=())
         p.start()
-        p.join()
+        #p.join()
 
         return self
 
