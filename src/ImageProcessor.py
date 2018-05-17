@@ -103,6 +103,9 @@ class ImageProcessor:
 
                 time.sleep(self.delay_in_sec)
 
+            self.is_processing = False
+            has_found.value = True
+
     @staticmethod
     def find_squares(img):
         squares = []
