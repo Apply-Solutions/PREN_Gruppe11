@@ -75,9 +75,9 @@ class ImageProcessor:
                 list_of_squares = self.find_squares(frame)
 
                 output.truncate(0)
-                print("[ ImageProcessor ] Length: len(list_of_squares) ")
+                print("[ ImageProcessor ] Length: " + len(list_of_squares))
                 if len(list_of_squares) == 0:
-                    self.is_where_found = False
+                    has_found.value = False
                 else:
                     print("[ ImageProcessor ] Square found")
                     # calculate center
@@ -94,7 +94,7 @@ class ImageProcessor:
 
                     print("[ ImageProcessor ] Set state.")
                     print("[ ImageProcessor ] X: "+str(self.get_center_x()))
-                    self.is_where_found = True
+
                     self.stop_imgproc()
                     self.is_processing = False
                     has_found.value = True
