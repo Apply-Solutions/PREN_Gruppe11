@@ -49,6 +49,7 @@ class ImageProcessor(Thread):
     def run(self):
         # keep looping infinitely until the thread is stopped
         count = 1
+        self.start_improc()
 
         with PiRGBArray(self.camera) as output:
             while self.is_processing:
