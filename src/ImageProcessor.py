@@ -68,7 +68,8 @@ class ImageProcessor:
         count = 1
 
         with PiRGBArray(self.camera) as output:
-            while self.is_processing:
+            while self.is_processing or count > 20:
+                count += 1
 
                 self.camera.capture(output, 'rgb', use_video_port=True)
                 frame = output.array
