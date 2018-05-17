@@ -5,24 +5,28 @@ import time
 from picamera.array import PiRGBArray
 from threading import Thread
 from StateMachine import StateMachine
-from multiprocessing import Process
+from multiprocessing import Process, Value
 
 
 class ImageProcessor:
     _states = ['initialized', 'processing', 'found_square']
     delay_in_sec = 0.3
 
-    def __init__(self):
+    def __init__(self, has_found):
         resolution = (320, 240)
         framerate = 10
+
+        self.has_found = has_found
 
         self.camera = picamera.PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
 
+        self.process = None
+
         self.rawCapture = PiRGBArray(self.camera, resolution)
 
-        self.is_processing = True;
+        self.is_processing = True
 
         self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
 
@@ -35,13 +39,17 @@ class ImageProcessor:
         print("[ ImageProcessor ]  enter start thread")
         self.start_imgproc()
         print("[ ImageProcessor ]  start process")
-        p = Process(target=self.check_if_square, args=())
-        p.start()
+        print("[ ImageProcessor ]  has_found: " + str(self.has_found.value))
+        self.process = Process(target=self.run, args=(self.has_found,))
+        self.process.start()
+
+        print("[ ImageProcessor ]  process started.")
 
         return self
 
-    def stop(self):
-        self.is_processing = False;
+    def stop_image_processor(self):
+        self.process.stop()
+        self.is_processing = False
 
     def get_state(self):
         return self.is_where_found
@@ -55,7 +63,7 @@ class ImageProcessor:
     def get_center_y(self):
         return self.center_y
 
-    def check_if_square(self):
+    def run(self, has_found):
         # keep looping infinitely until the thread is stopped
         count = 1
 
@@ -88,6 +96,8 @@ class ImageProcessor:
                     print("[ ImageProcessor ] X: "+str(self.get_center_x()))
                     self.is_where_found = True
                     self.stop_imgproc()
+                    self.is_processing = False
+                    has_found.value = True
                     print("[ ImageProcessor ] Processing stopped")
 
                 time.sleep(self.delay_in_sec)

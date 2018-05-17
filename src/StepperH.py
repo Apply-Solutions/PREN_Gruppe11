@@ -3,6 +3,7 @@ from StateMachine import StateMachine
 import math
 import RPi.GPIO as GPIO
 from Observable import Observable
+from multiprocessing import Value
 
 DIR = 24  # Direction GPIO Pin
 STEP = 23  # Step GPIO Pin
@@ -16,8 +17,11 @@ class StepperH(Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
-    def __init__(self):
+    def __init__(self, has_found):
         print("[ StepperH ] initialising")
+
+        self.has_found = has_found
+
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(DIR, GPIO.OUT)
         GPIO.setup(STEP, GPIO.OUT)
@@ -60,8 +64,13 @@ class StepperH(Observable):
         self.delay = 0.06
         self.count = 5
 
+        print("[ StepperH ] Value has found: " + str(self.has_found.value))
+
         while self.running:
-            self.do_steps(0.001)
+            has_found = self.has_found
+            print("[ StepperH ] Value has found: " + str(has_found.value))
+            if not has_found.value:
+                self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
 

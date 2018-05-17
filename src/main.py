@@ -8,6 +8,8 @@ from StateMachine import StateMachine
 from Observer import Observer
 import transition
 import time
+from multiprocessing import Value
+from ctypes import c_bool
 
 _states = ['initialized', 'running', 'stopped']
 server = 0
@@ -149,9 +151,12 @@ if __name__ == '__main__':
         self_sm = StateMachine.get_main_machine(mainthread, _states)
         server = BluetoothServer()
 
-        stepperH = StepperH()
+        # Init queue for multiprocess communication
+        has_found = Value(c_bool, False)
+
+        stepperH = StepperH(has_found)
         stepperV = StepperV()
-        imgProcessor = ImageProcessor()
+        imgProcessor = ImageProcessor(has_found)
         electroMagnet = ElectroMagnet()
         collisionButton = CollisionButton()
 
@@ -194,6 +199,7 @@ if __name__ == '__main__':
         try:
             print("[ MAIN ] Attempting to switch off ImageProcessor")
             imgProcessor.stop_imgproc()
+            imgProcessor.stop_image_processor()
             print("[ MAIN ] Attempting to switch off ElectroMagnet")
             electroMagnet.off()
             print("[ MAIN ] Attempting to switch off StepperH")
