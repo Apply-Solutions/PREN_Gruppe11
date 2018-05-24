@@ -10,17 +10,15 @@ STEP = 23  # Step GPIO Pin
 CW = 1  # Clockwise Rotation
 CCW = 0  # Counterclockwise Rotation
 SPR = 1000  # Steps per Revolution (360 / 7.5)
-
 step_count = SPR
+
 
 class StepperH(Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
-    def __init__(self, has_found):
+    def __init__(self):
         print("[ StepperH ] initialising")
-
-        self.has_found = has_found
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(DIR, GPIO.OUT)
@@ -56,7 +54,7 @@ class StepperH(Observable):
 
         self.stop_stepperH() # Change state in State Machine
 
-    def run_until_stopped(self):
+    def run_until_stopped(self, shared):
         self.running = True
         print("[ StepperH ] Resume forwards until square found")
         print("[ StepperH ] ON")
@@ -64,12 +62,12 @@ class StepperH(Observable):
         self.delay = 0.06
         self.count = 5
 
-        print("[ StepperH ] Value has found: " + str(self.has_found.value))
+        print("[ StepperH ] Value has found: " + str(shared.get_has_position_found()))
 
         while self.running:
-            has_found = self.has_found
-            print("[ StepperH ] Value has found: " + str(has_found.value))
-            if not has_found.value:
+            has_found = shared.get_has_position_found()
+            print("[ StepperH ] Value has found: " + str(has_found))
+            if not has_found:
                 self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")

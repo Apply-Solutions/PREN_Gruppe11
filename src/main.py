@@ -6,10 +6,11 @@ from ElectroMagnet import ElectroMagnet
 from CollisionButton import CollisionButton
 from StateMachine import StateMachine
 from Observer import Observer
+from ProcessManager import ProcessManager
+from multiprocessing import Pool
+from SharedImageDetectionValue import SharedImageDetectionValue
 import transition
 import time
-from multiprocessing import Value
-from ctypes import c_bool
 
 _states = ['initialized', 'running', 'stopped']
 server = 0
@@ -88,12 +89,23 @@ def stepperv_at_position():
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
-    imgProcessor.start_thread()
+    pool.apply_async(func= start_processing, args=(imgProcessor, shared))
 
     print("[ MAIN ] StepperH resume forwards")
     stepperH.resume_forwards() # State Change to running_forwards
-    stepperH.run_until_stopped()
+    print("[ MAIN ] StepperH add to pool")
+    # stepperH.run_until_stopped(shared)
+    pool.apply_async(func=start_moving_to_target_platform, args=(stepperH, shared))
 
+
+def start_processing(imgPrc, passed_shared):
+    imgPrc.run(passed_shared)
+
+
+def start_moving_to_target_platform(stepper, passed_shared):
+    print("[ MAIN ] StepperH start method")
+    # TODO: check why object is not found!!
+    stepper.run_until_stopped(passed_shared)
 
 # ------------------------------------------------------------------
 # 5. StepperH run forwards until square found
@@ -107,8 +119,6 @@ def running_forwards():
 # ------------------------------------------------------------------
 def found_destination():
     print("[ MAIN ] fount_destination()")
-    print("[ MAIN ] Attempting to stop Image Processor")
-    imgProcessor.stop()
     print("[ MAIN ] Attempting to stop StepperH")
 
     stepperH.running = False
@@ -152,11 +162,17 @@ if __name__ == '__main__':
         server = BluetoothServer()
 
         # Init queue for multiprocess communication
-        has_found = Value(c_bool, False)
 
-        stepperH = StepperH(has_found)
+        ProcessManager.register('SharedImageDetectionValue', SharedImageDetectionValue)
+        manager = ProcessManager()
+        manager.start()
+
+        shared = manager.SharedImageDetectionValue()
+        pool = Pool(2)
+
+        imgProcessor = ImageProcessor()
+        stepperH = StepperH()
         stepperV = StepperV()
-        imgProcessor = ImageProcessor(has_found)
         electroMagnet = ElectroMagnet()
         collisionButton = CollisionButton()
 
@@ -197,9 +213,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("[ MAIN ] Switching off program!")
         try:
-            print("[ MAIN ] Attempting to switch off ImageProcessor")
-            imgProcessor.stop_imgproc()
-            imgProcessor.stop_image_processor()
+            print("[ MAIN ] Attempting to switch off process pool")
+            pool.close()
+            pool.terminate()
+
             print("[ MAIN ] Attempting to switch off ElectroMagnet")
             electroMagnet.off()
             print("[ MAIN ] Attempting to switch off StepperH")
