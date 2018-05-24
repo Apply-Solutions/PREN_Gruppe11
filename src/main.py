@@ -88,11 +88,13 @@ def stepperv_at_position():
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
+    imgProcessor.start_imgproc()
     imgProcessor.start()
 
     print("[ MAIN ] StepperH resume forwards")
     stepperH.resume_forwards() # State Change to running_forwards
     stepperH.run_until_stopped()
+    imgProcessor.stop_imgproc()
 
 
 # ------------------------------------------------------------------

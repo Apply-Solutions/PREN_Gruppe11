@@ -40,7 +40,6 @@ class ImageProcessor(multiprocessing.Process):
         camera.resolution = resolution
         camera.framerate = 10
 
-        self.start_imgproc()
         self.result_queue.put("[ ImageProcessor ] started")
         with PiRGBArray(camera) as output:
             # keep looping infinitely until the thread is stopped
