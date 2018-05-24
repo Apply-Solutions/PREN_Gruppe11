@@ -8,6 +8,8 @@ from StateMachine import StateMachine
 from Observer import Observer
 import transition
 import time
+import multiprocessing
+
 
 _states = ['initialized', 'running', 'stopped']
 server = 0
@@ -86,7 +88,7 @@ def stepperv_at_position():
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
-    imgProcessor.start_thread()
+    imgProcessor.start()
 
     print("[ MAIN ] StepperH resume forwards")
     stepperH.resume_forwards() # State Change to running_forwards
@@ -115,7 +117,7 @@ def found_destination():
     print("[ MAIN ] Resuming StepperV")
     stepperV.on(int(1), stepperH.get_y())
     stepperV.resume_downwards()
-    electroMagnet.off() # Drop cargo
+    electroMagnet.off()  # Drop cargo
 
     # ------------------------------------------------------------------
     # 7. Go to finish line
@@ -149,9 +151,12 @@ if __name__ == '__main__':
         self_sm = StateMachine.get_main_machine(mainthread, _states)
         server = BluetoothServer()
 
-        stepperH = StepperH()
+        tasks = multiprocessing.JoinableQueue()
+        results = multiprocessing.Queue()
+
+        stepperH = StepperH(results)
         stepperV = StepperV()
-        imgProcessor = ImageProcessor()
+        imgProcessor = ImageProcessor(tasks, results)
         electroMagnet = ElectroMagnet()
         collisionButton = CollisionButton()
 
@@ -193,7 +198,9 @@ if __name__ == '__main__':
         print("[ MAIN ] Switching off program!")
         try:
             print("[ MAIN ] Attempting to switch off ImageProcessor")
-            imgProcessor.stop_imgproc()
+            imgProcessor.stop()
+            imgProcessor.terminate()
+
             print("[ MAIN ] Attempting to switch off ElectroMagnet")
             electroMagnet.off()
             print("[ MAIN ] Attempting to switch off StepperH")

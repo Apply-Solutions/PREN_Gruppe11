@@ -5,44 +5,27 @@ import time
 from picamera.array import PiRGBArray
 from threading import Thread
 from StateMachine import StateMachine
+import multiprocessing
 
 
-class ImageProcessor:
+class ImageProcessor(multiprocessing.Process):
     _states = ['initialized', 'processing', 'found_square']
     delay_in_sec = 0.3
 
-    def __init__(self):
-        resolution = (320, 240)
-        framerate = 10
-
-        self.camera = picamera.PiCamera()
-        self.camera.resolution = resolution
-        self.camera.framerate = framerate
-
-        self.rawCapture = PiRGBArray(self.camera, resolution)
+    def __init__(self, task_queue, result_queue):
+        multiprocessing.Process.__init__(self)
+        self.task_queue = task_queue
+        self.result_queue = result_queue
 
         self.is_processing = True;
 
         self.sm = StateMachine.get_camera_machine(self, ImageProcessor._states)
 
-        self.is_where_found = False
         self.center_x = 0
-        self.center_y = 0
         print("[ ImageProcessor ] initialized")
 
-    def start_thread(self):
-        self.start_imgproc()
-        thrd = Thread(target=self.check_if_square, args=())
-        thrd.daemon = True
-        # start the thread to read frames from the video stream
-        thrd.start()
-        return self
-
     def stop(self):
-        self.is_processing = False;
-
-    def get_state(self):
-        return self.is_where_found
+        self.is_processing = False
 
     def get_sm(self):
         return self.sm
@@ -50,42 +33,39 @@ class ImageProcessor:
     def get_center_x(self):
         return self.center_x
 
-    def get_center_y(self):
-        return self.center_y
+    def run(self):
+        resolution = (320, 240)
 
-    def check_if_square(self):
-        # keep looping infinitely until the thread is stopped
-        count = 1
+        camera = picamera.PiCamera()
+        camera.resolution = resolution
+        camera.framerate = 10
 
-        with PiRGBArray(self.camera) as output:
+        self.start_imgproc()
+        self.result_queue.put("[ ImageProcessor ] started")
+        with PiRGBArray(camera) as output:
+            # keep looping infinitely until the thread is stopped
             while self.is_processing:
 
-                self.camera.capture(output, 'rgb', use_video_port=True)
+                camera.capture(output, 'rgb', use_video_port=True)
                 frame = output.array
                 list_of_squares = self.find_squares(frame)
 
                 output.truncate(0)
-                print("[ ImageProcessor ] Length: len(list_of_squares) ")
-                if len(list_of_squares) == 0:
-                    self.is_where_found = False
-                else:
-                    print("[ ImageProcessor ] Square found")
+
+                if len(list_of_squares)> 0:
                     # calculate center
                     x_list = []
-                    y_list = []
 
                     for square in list_of_squares:
                         m = cv2.moments(square)
                         x_list.append(int(m["m10"] / m["m00"]))
-                        y_list.append(int(m["m01"] / m["m00"]))
 
                     self.center_x = reduce(lambda x, y: x + y, x_list) / float(len(x_list))
-                    self.center_y = reduce(lambda x, y: x + y, y_list) / float(len(y_list))
 
                     print("[ ImageProcessor ] Set state.")
-                    print("[ ImageProcessor ] X: "+str(self.get_center_x()))
-                    self.is_where_found = True
-                    self.stop_imgproc()
+
+                    self.result_queue.put(True)
+                    self.stop()
                     print("[ ImageProcessor ] Processing stopped")
 
                 time.sleep(self.delay_in_sec)

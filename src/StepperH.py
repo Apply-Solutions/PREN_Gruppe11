@@ -16,8 +16,10 @@ class StepperH(Observable):
     _states = ['initialized', 'running_forwards', 'running_backwards', 'stopped']
     position = [0, 0]
 
-    def __init__(self):
+    def __init__(self, result_queue):
         print("[ StepperH ] initialising")
+        self.result_queue = result_queue
+
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(DIR, GPIO.OUT)
         GPIO.setup(STEP, GPIO.OUT)
@@ -61,7 +63,17 @@ class StepperH(Observable):
         self.count = 5
 
         while self.running:
-            self.do_steps(0.001)
+            if not self.result_queue.empty():
+                print "Queue has item"
+
+                result = self.result_queue.get()
+                print result
+
+                if result is True:
+                    self.running = False
+
+            else:
+                self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
 
