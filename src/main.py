@@ -66,12 +66,14 @@ def server_got_signal(steps):
 # ------------------------------------------------------------------
 def stepperh_at_position():
     # TODO: change current position
+    server.send_message(server.getDatetime() + "@[ StepperH ] At pos#")
     print("[ MAIN ] stepperh_at_position()")
     print("[ MAIN ] Set StepperV amount of steps to take: "+str(stepperH.get_y()))
 
     stepperV.start_stepperV() # State Change
     stepperV.on(int(1), int(stepperH.get_y()))
 
+    server.send_message(server.getDatetime() + "@[ Electromagnet ] Turning on...#")
     electroMagnet.on()
 
     stepperV.stop_stepperV() # State Change
@@ -82,16 +84,19 @@ def stepperh_at_position():
 # ------------------------------------------------------------------
 def stepperv_at_position():
     print("[ MAIN ] stepperv_at_position()")
+    server.send_message(server.getDatetime() + "@[ cargo ]#")
     time.sleep(1)
 
     print("[ MAIN ] Amount of steps for StepperV = "+str(stepperH.get_y()))
     stepperV.on(int(0), int(stepperH.get_y()))
 
     print("[ MAIN ] Starting Image Processor...")
+    server.send_message(server.getDatetime() + "@[ ImageProcessor ] Starting image processor...#")
     imgProcessor.start_imgproc()
     imgProcessor.start()
 
     print("[ MAIN ] StepperH resume forwards")
+    server.send_message(server.getDatetime() + "@[ StepperH ] Resuming forwards#")
     stepperH.resume_forwards() # State Change to running_forwards
     stepperH.run_until_stopped()
     imgProcessor.stop_imgproc()
@@ -108,6 +113,7 @@ def running_forwards():
 # 6. StepperH at drop position -> StepperV drop cargo
 # ------------------------------------------------------------------
 def found_destination():
+    server.send_message(server.getDatetime() + "@[ ImageProcessor ] Found destination#")
     print("[ MAIN ] fount_destination()")
     print("[ MAIN ] Attempting to stop Image Processor")
     imgProcessor.stop()
@@ -117,6 +123,7 @@ def found_destination():
     stepperH.on()
     # Stepper going down to drop cargo
     print("[ MAIN ] Resuming StepperV")
+    server.send_message(server.getDatetime() + "@[ StepperV ] Resuming...#")
     stepperV.on(int(1), stepperH.get_y())
     stepperV.resume_downwards()
     electroMagnet.off()  # Drop cargo
@@ -128,7 +135,8 @@ def found_destination():
     collisionButton.start_collision()
     collisionButton.start()
     stepperH.run_until_collided(collisionButton)
-
+    server.send_message(server.getDatetime() + "@[ collision ] Collided#")
+    server.send_message(server.getDatetime() + "@[ main ] You have reached your final destination...BITCH!#")
     print
     print
     print
@@ -181,11 +189,10 @@ if __name__ == '__main__':
         # Register self to Observer
         print("[ MAIN ] Registering StepperH to Observer")
         stepperH.register(mainthread)
-        collisionButton.register(mainthread)
 
         mainthread.start_mt()
 
-        print("[ Main ] Starting bluetooth server")
+        print("[ MAIN ] Starting bluetooth server")
 
         # ------------------------------------------------------------------
         # 1. Start BTServer
@@ -193,7 +200,7 @@ if __name__ == '__main__':
         server.start_thread()
         # -> Next step at method 2. server_got_signal
 
-        print("[ Main ] Started bluetooth server")
+        print("[ MAIN ] Started bluetooth server")
 
         while mainthread.is_running():
             time.sleep(2)

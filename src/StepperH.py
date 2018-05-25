@@ -46,7 +46,7 @@ class StepperH(Observable):
         self.count = 5
 
         while self.steps_taken < self.amount_of_steps:
-            self.do_steps(0.0003)
+            self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -73,7 +73,7 @@ class StepperH(Observable):
                     self.running = False
 
             else:
-                self.do_steps(0.001)
+                self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")
 
