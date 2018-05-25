@@ -114,7 +114,7 @@ def found_destination():
     print("[ MAIN ] Attempting to stop StepperH")
 
     stepperH.running = False
-    stepperH.on(int(round((imgProcessor.get_center_x() / 10) / 0.01570796 + (stepperH.steps_taken / 2000))))
+    stepperH.on()
     # Stepper going down to drop cargo
     print("[ MAIN ] Resuming StepperV")
     stepperV.on(int(1), stepperH.get_y())

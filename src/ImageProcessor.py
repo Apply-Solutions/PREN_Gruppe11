@@ -64,6 +64,7 @@ class ImageProcessor(multiprocessing.Process):
                     print("[ ImageProcessor ] Set state.")
 
                     self.result_queue.put(True)
+                    self.result_queue.put(self.center_x)
                     self.stop()
                     print("[ ImageProcessor ] Processing stopped")
 

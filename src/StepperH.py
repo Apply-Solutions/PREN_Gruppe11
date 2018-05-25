@@ -52,7 +52,7 @@ class StepperH(Observable):
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
         print("[ StepperH ] Waiting for state change")
 
-        self.stop_stepperH() # Change state in State Machine
+        self.stop_stepperH()  # Change state in State Machine
 
     def run_until_stopped(self):
         self.running = True
@@ -77,15 +77,18 @@ class StepperH(Observable):
 
         print("[ StepperH ] OFF")
 
-    def on(self, amount_of_steps):
-        self.amount_of_steps = amount_of_steps
-        steps_tekken = 0
+    def on(self):
+        if not self.result_queue.empty():
+            center_x = self.result_queue.get()
+            self.amount_of_steps = int(round((center_x / 10) / 0.01570796 + (self.steps_taken / 2000)))
+
+        steps_taken_to_target = 0
         print("[ StepperH ] ON")
         print("[ StepperH ] Steps taken: " + str(self.steps_taken))
         print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        while steps_tekken < self.amount_of_steps:
-            steps_tekken += 1
+        while steps_taken_to_target < self.amount_of_steps:
+            steps_taken_to_target += 1
             self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
