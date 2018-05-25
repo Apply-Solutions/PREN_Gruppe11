@@ -136,7 +136,7 @@ def found_destination():
     collisionButton.start()
     stepperH.run_until_collided(collisionButton)
     server.send_message(server.getDatetime() + "@[ collision ] Collided#")
-    server.send_message(server.getDatetime() + "@[ main ] You have reached your final destination...BITCH!#")
+    server.send_message(server.getDatetime() + "@[ main ] You have reached your final destination#")
     print
     print
     print
