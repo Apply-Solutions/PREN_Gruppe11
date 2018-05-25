@@ -125,7 +125,8 @@ def found_destination():
     # 7. Go to finish line
     # ------------------------------------------------------------------
     stepperV.on(int(0), stepperH.get_y()) # Resume upwards
-    collisionButton.start_collision_thread()
+    collisionButton.start_collision()
+    collisionButton.start()
     stepperH.run_until_collided(collisionButton)
 
     print
@@ -160,7 +161,7 @@ if __name__ == '__main__':
         stepperV = StepperV()
         imgProcessor = ImageProcessor(tasks, results)
         electroMagnet = ElectroMagnet()
-        collisionButton = CollisionButton()
+        collisionButton = CollisionButton(tasks, results)
 
         # Add transitions
         transition.add_mainthread_transitions(self_sm)
@@ -211,5 +212,7 @@ if __name__ == '__main__':
             mainthread.stop_running()
             print("[ MAIN ] Attempting to switch off CollisionButton")
             collisionButton.stop_collision()
+            collisionButton.terminate()
+
         except Exception:
             print("[ MAIN ] Failed to stop program correctly...OFF and OUT!")

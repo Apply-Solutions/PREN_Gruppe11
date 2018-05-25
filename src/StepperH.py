@@ -80,7 +80,12 @@ class StepperH(Observable):
     def on(self):
         if not self.result_queue.empty():
             center_x = self.result_queue.get()
+
+            print ("[ StepperH ] center_x: " + str(center_x))
+
             self.amount_of_steps = int(round((center_x / 10) / 0.01570796 + (self.steps_taken / 2000)))
+        else:
+            self.amount_of_steps = 500
 
         steps_taken_to_target = 0
         print("[ StepperH ] ON")
@@ -104,7 +109,17 @@ class StepperH(Observable):
         self.count = 5
 
         while self.running:
-            self.do_steps_slow()
+            if not self.result_queue.empty():
+                print "Queue has item"
+
+                result = self.result_queue.get()
+                print result
+
+                if result is True:
+                    self.running = False
+                    collision_button.stop_collision()
+            else:
+                self.do_steps(0.0005)
 
         print("[ StepperH ] OFF")
         print
