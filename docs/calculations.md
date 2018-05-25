@@ -8,7 +8,7 @@ Voraussetzungen:
 * $\mu = 0.5$
 * $K_a = 1.8$
 
-Berechnungen für die Geometrie der Laufkatze:
+Berechnungen für die Geometrie der Laufkatze: 
 
 * Konstruktionswinkel $\displaystyle \beta = arctan\Bigg(\frac{\text{Höhendifferenz}}{\big(\frac{\text{Achsenabstand}}{2}\big)}\Bigg) = 5.7°$
 <br><br>
