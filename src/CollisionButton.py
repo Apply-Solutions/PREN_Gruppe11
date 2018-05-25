@@ -1,9 +1,7 @@
 import multiprocessing
 
-from Observable import Observable
 import RPi.GPIO as GPIO
 import time
-from threading import Thread
 from StateMachine import StateMachine
 
 GPIO_ECHO = 18
