@@ -15,6 +15,7 @@ class CollisionButton(multiprocessing.Process):
 
         self.task_queue = task_queue
         self.result_queue = result_queue
+        self.is_running = True
 
         # GPIO Mode (BOARD / BCM)
         GPIO.setmode(GPIO.BCM)
@@ -26,12 +27,13 @@ class CollisionButton(multiprocessing.Process):
         print("[ CollisionButton ] Initialized")
 
     def run(self):
-        while self.is_running():
+        while self.is_running:
             time.sleep(1.5)
             # print("[ CollisionButton ]" + str(GPIO.input(GPIO_ECHO)))
             if GPIO.input(GPIO_ECHO):
                 print("[ CollisionButton ] Collided")
                 self.result_queue.put(True)
+                self.is_running = False
 
     def get_sm(self):
         return self.sm
