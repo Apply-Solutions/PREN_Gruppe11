@@ -28,7 +28,7 @@ class StepperH(Observable):
         Observable.__init__(self)
         self.amount_of_steps = 0
         self.steps_taken = 1
-        self.delay = 0.06
+        self.delay = 0.006
         self.count = 5
         self.running = True # to stop stepper from main thread in the end
 
@@ -42,15 +42,18 @@ class StepperH(Observable):
         print("[ StepperH ] Steps taken: " + str(self.steps_taken))
         print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
 
-        self.delay = 0.06
+        self.delay = 0.006
         self.count = 5
 
         while self.steps_taken < self.amount_of_steps:
             if (self.amount_of_steps - self.steps_taken) >= 300:
                 self.do_steps(0.0005)
-            else:
+            elif (self.amount_of_steps - self.steps_taken) >= 100:
                 self.delay = 0.001
                 self.do_steps(0.001)
+            else:
+                self.delay = 0.002
+                self.do_steps(0.002)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -63,7 +66,7 @@ class StepperH(Observable):
         print("[ StepperH ] Resume forwards until square found")
         print("[ StepperH ] ON")
 
-        self.delay = 0.06
+        self.delay = 0.006
         self.count = 5
 
         while self.running:
@@ -77,7 +80,7 @@ class StepperH(Observable):
                     self.running = False
 
             else:
-                self.do_steps(0.0008)
+                self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
 
@@ -95,7 +98,7 @@ class StepperH(Observable):
         print("[ StepperH ] ON")
         print("[ StepperH ] Steps taken: " + str(self.steps_taken))
         print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
-        self.delay = 0.006
+        self.delay = 0.001
 
         while steps_taken_to_target < self.amount_of_steps:
             steps_taken_to_target += 1
@@ -124,11 +127,14 @@ class StepperH(Observable):
                     self.running = False
                     collision_button.stop_collision()
             else:
-                if (10000 - self.steps_taken) >= 200:
+                if (10500 - self.steps_taken) >= 1000:
                     self.do_steps(0.001)
+                elif (10500 - self.steps_taken) >= 100:
+                    self.delay = 0.002
+                    self.do_steps(0.002)
                 else:
-                    self.delay = 0.0025
-                    self.do_steps(0.0025)
+                    self.delay = 0.006
+                    self.do_steps(0.006)
 
         print("[ StepperH ] OFF")
         print
@@ -158,24 +164,6 @@ class StepperH(Observable):
         sleep(self.delay)
         self.steps_taken += 1
         self.update_position()
-        Observable.dispatch(self, str(self.get_x()) + ";" + str(self.get_y()))
-
-    def do_steps_slow(self):
-        if self.delay > 0.001:
-            self.delay = math.exp(-self.count) + 0.0005
-            self.count = self.count + 0.0075
-
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(DIR, GPIO.OUT)
-        GPIO.setup(STEP, GPIO.OUT)
-
-        GPIO.output(STEP, GPIO.HIGH)
-        sleep(self.delay)
-        GPIO.output(STEP, GPIO.LOW)
-        sleep(self.delay)
-        self.steps_taken += 1
-        self.update_position()
-        print("[ StepperH ] Steps taken: "+str(self.steps_taken))
         Observable.dispatch(self, str(self.get_x()) + ";" + str(self.get_y()))
 
     def update_position(self):

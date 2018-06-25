@@ -28,7 +28,7 @@ class CollisionButton(multiprocessing.Process):
 
     def run(self):
         while self.is_running:
-            time.sleep(1.5)
+            time.sleep(0.3)
             # print("[ CollisionButton ]" + str(GPIO.input(GPIO_ECHO)))
             if GPIO.input(GPIO_ECHO):
                 print("[ CollisionButton ] Collided")
