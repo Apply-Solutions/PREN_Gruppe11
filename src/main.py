@@ -92,8 +92,11 @@ def stepperv_at_position():
 
     print("[ MAIN ] Starting Image Processor...")
     server.send_message(server.getDatetime() + "@[ ImageProcessor ] Starting image processor...#")
+
     imgProcessor.start_imgproc()
     imgProcessor.start()
+
+    time.sleep(2)
 
     print("[ MAIN ] StepperH resume forwards")
     server.send_message(server.getDatetime() + "@[ StepperH ] Resuming forwards#")
