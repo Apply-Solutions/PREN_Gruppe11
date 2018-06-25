@@ -84,7 +84,7 @@ def stepperh_at_position():
 # ------------------------------------------------------------------
 def stepperv_at_position():
     print("[ MAIN ] stepperv_at_position()")
-    server.send_message(server.getDatetime() + "@[ cargo ]#")
+    server.send_message(server.getDatetime() + "@[ event ] Cargo picked up#")
     time.sleep(1)
 
     print("[ MAIN ] Amount of steps for StepperV = "+str(stepperH.get_y()))
@@ -127,6 +127,7 @@ def found_destination():
     stepperV.on(int(1), stepperH.get_y())
     stepperV.resume_downwards()
     electroMagnet.off()  # Drop cargo
+    server.send_message(server.getDatetime() + "@[ event ] Cargo at destination#")
 
     # ------------------------------------------------------------------
     # 7. Go to finish line
@@ -135,7 +136,7 @@ def found_destination():
     collisionButton.start_collision()
     collisionButton.start()
     stepperH.run_until_collided(collisionButton)
-    server.send_message(server.getDatetime() + "@[ collision ] Collided#")
+    server.send_message(server.getDatetime() + "@[ event ] Collision detected#")
     server.send_message(server.getDatetime() + "@[ main ] You have reached your final destination#")
     print
     print

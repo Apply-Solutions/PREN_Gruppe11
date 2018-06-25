@@ -46,7 +46,11 @@ class StepperH(Observable):
         self.count = 5
 
         while self.steps_taken < self.amount_of_steps:
-            self.do_steps(0.0005)
+            if (self.amount_of_steps - self.steps_taken) >= 300:
+                self.do_steps(0.0005)
+            else:
+                self.delay = 0.001
+                self.do_steps(0.001)
 
         print("[ StepperH ] OFF")
         print("[ StepperH ] Stepper took " + str(self.steps_taken) + " before stopping")
@@ -73,7 +77,7 @@ class StepperH(Observable):
                     self.running = False
 
             else:
-                self.do_steps(0.0005)
+                self.do_steps(0.0008)
 
         print("[ StepperH ] OFF")
 
@@ -91,6 +95,7 @@ class StepperH(Observable):
         print("[ StepperH ] ON")
         print("[ StepperH ] Steps taken: " + str(self.steps_taken))
         print("[ StepperH ] Steps to take: " + str(self.amount_of_steps))
+        self.delay = 0.006
 
         while steps_taken_to_target < self.amount_of_steps:
             steps_taken_to_target += 1
@@ -105,7 +110,7 @@ class StepperH(Observable):
         print("[ StepperH ] Resume forwards until collision")
         print("[ StepperH ] ON")
 
-        self.delay = 0.06
+        self.delay = 0.006
         self.count = 5
 
         while self.running:
@@ -119,7 +124,11 @@ class StepperH(Observable):
                     self.running = False
                     collision_button.stop_collision()
             else:
-                self.do_steps(0.0005)
+                if (10000 - self.steps_taken) >= 200:
+                    self.do_steps(0.001)
+                else:
+                    self.delay = 0.0025
+                    self.do_steps(0.0025)
 
         print("[ StepperH ] OFF")
         print
