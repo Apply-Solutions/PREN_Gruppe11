@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">T11-Pren1</string>
+    <string name="app_name">Laufkatze T12</string>
+    <string name="connect">Connect</string>
+
+    <string name="status_connecting">Status: Establishing connection...</string>
+    <string name="status_connected">Status: Connected to robot</string>
+    <string name="status_disconnected">Status: Disconnected</string>
+    <string name="status_error">Status: Failed to connect to robot</string>
+    <string name="start_process">Start process</string>
+    <string name="received_message_from_server">Received message from server:</string>
+
+    <string name="mm">mm</string>
+    <string name="zu_fahrende_startdistanz">Zu fahrende Startdistanz:</string>
+
+    <string name="time">Laufzeit: %1$s:%2$s</string>
+    <string name="cargo">Last vorhanden: %1$s</string>
+    <string name="robot_pos">X-Position Laufkatze: %1$s cm</string>
+    <string name="cargo_posX">X-Position Last: %1$s cm</string>
+    <string name="cargo_posY">Y-Position Last: %1$s cm</string>
+    <string name="last_vorhanden_nein">Last vorhanden: Nein</string>
+    <string name="laufzeit_00_00">Laufzeit: 00:00</string>
+    <string name="x_position_last">X-Position Last: ???</string>
+    <string name="y_position_last">Y-Position Last: ???</string>
+    <string name="x_position_laufkatze">X-Position Laufkatze: ???</string>
+
 </resources>
